@@ -1,0 +1,3 @@
+BUNO_ID,Drone_Model,Manufacturer,Purchase_Date,Serial,Status,Status_Code
+DR-001,DJI Mavic Air 2,"DJI Innovations",2023-10-15,12345,"Active","OK"
+DR-002,DJI Phantom 4 Pro,"DJI Innovations",2022-05-20,23456,"Maintenance","MAINT"
