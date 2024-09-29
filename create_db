@@ -20,22 +20,18 @@ drones = sa.Table(
 
 flight_plans = sa.Table(
     'flight_plans', metadata,
-    sa.Column('PK_FlightPlan', sa.String, primary_key=True),
-    sa.Column('FK_BUNO_ID', sa.String, sa.ForeignKey('drones.BUNO_ID')),
-    sa.Column('FK_Pilot_ID', sa.String, sa.ForeignKey('pilots.Pilot_ID')),
-    sa.Column('Latitude', sa.Float),
-    sa.Column('Route_Cordination_ID', sa.String),
-    sa.Column('FK_Route_ID', sa.String, sa.ForeignKey('routes.PK_Route_ID')),
+    sa.Column('Flight_Plan_ID', sa.String, primary_key=True),
+    sa.Column('BUNO_ID', sa.String, sa.ForeignKey('drones.BUNO_ID')),
+    sa.Column('Pilot_ID', sa.String, sa.ForeignKey('pilots.Pilot_ID')),
+    sa.Column('Route_ID', sa.String, sa.ForeignKey('routes.Route_ID')),
     sa.Column('IsPlanned', sa.Boolean),
-    sa.Column('Longitude', sa.Float)
 )
 
 routes = sa.Table(
     'routes', metadata,
-    sa.Column('PK_Route_ID', sa.String, primary_key=True),
+    sa.Column('Route_ID', sa.String, primary_key=True),
     sa.Column('Latitude', sa.Float),
-    sa.Column('Route_Cordination_ID', sa.String),
-    sa.Column('Longitude', sa.Float)
+    sa.Column('Longitude', sa.Float),
 )
 
 pilots = sa.Table(
