@@ -1,0 +1,60 @@
+import sqlite3
+
+# Connect to the database
+conn = sqlite3.connect('drone_data.db')
+cursor = conn.cursor()
+
+# --- Query Functions ---
+
+# Query 1: Total Unique Pilots
+def get_total_unique_pilots():
+    cursor.execute("""
+        SELECT COUNT(DISTINCT Pilot_ID) 
+        FROM pilots;
+    """)
+    return cursor.fetchone()[0]
+
+# Query 2: Average Pilot Hours
+def get_average_pilot_hours():
+    cursor.execute("""
+        SELECT AVG(Pilot_Hours) 
+        FROM pilots;
+    """)
+    return cursor.fetchone()[0]
+
+# Query 3: Unique Drone Model Inventory
+def get_unique_drone_model_inventory():
+    cursor.execute("""
+        SELECT 
+            Drone_Model, 
+            COUNT(*) AS Count
+        FROM 
+            drones
+        GROUP BY 
+            Drone_Model;
+    """)
+    return cursor.fetchall()
+
+# --- Example Usage ---
+
+total_pilots = get_total_unique_pilots()
+avg_hours = get_average_pilot_hours()
+drone_model_inventory = get_unique_drone_model_inventory()
+
+print("-" * 30)
+print("Pilot Statistics:")
+print("-" * 30)
+print(f"  Total Unique Pilots: {total_pilots}")
+print(f"  Average Pilot Hours: {avg_hours:.2f}")
+
+print("\n" + "-" * 30)
+print("Unique Drone Model Inventory:")
+print("-" * 30)
+if drone_model_inventory:
+    for model, count in drone_model_inventory:
+        print(f"  Drone Model: {model}, Count: {count}")
+else:
+    print("  No drone inventory data found.")
+
+# Close the connection
+conn.close()
