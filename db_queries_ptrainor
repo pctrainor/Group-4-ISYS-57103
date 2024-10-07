@@ -35,7 +35,7 @@ def get_unique_drone_model_inventory():
     """)
     return cursor.fetchall()
 
-# --- Example Usage ---
+# --- Stats ---
 
 total_pilots = get_total_unique_pilots()
 avg_hours = get_average_pilot_hours()
