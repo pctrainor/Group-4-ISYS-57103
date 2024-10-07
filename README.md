@@ -20,4 +20,19 @@ This Python script connects to a SQLite database (`drone_data.db`) to retrieve a
 
 After fetching the results, the script prints them in a neatly formatted manner for review. Finally, it closes the database connection to ensure resources are released properly.
 
+ # Phillip Trainor's Queries
  
+This script connects to an SQLite database (`drone_data.db`) and retrieves various statistics related to drone flight operations. It performs the following key queries:
+ 
+1. **Pilot Statistics**:
+ 
+   - Retrieves the total number of unique pilots and the average hours logged by pilots from the `pilots` table.
+ 
+2. **Planned Route Coordinates**:
+ 
+   - Fetches route IDs, dynamically generated waypoint IDs, and the latitude/longitude of flight routes from the `routes` and `flight_plans` tables where `IsPlanned` is true.
+ 
+3. **Unique Drone Model Inventory**:
+   - Retrieves a count of each unique drone model from the `drones` table.
+ 
+The results are printed in a formatted output, and the database connection is closed after querying.
