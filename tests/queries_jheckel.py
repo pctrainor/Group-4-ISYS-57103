@@ -1,5 +1,15 @@
-#This one needs to be graded!
+# Grade this one for Jess!
 import sqlite3
+import os
+ 
+# Construct the correct path to the database file
+db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'drone_data.db')
+ 
+# Connect to the database
+conn = sqlite3.connect(db_path)
+cursor = conn.cursor()
+ 
+# --- Query Functions ---
 
 # Connect to the database
 conn = sqlite3.connect('drone_data.db')
