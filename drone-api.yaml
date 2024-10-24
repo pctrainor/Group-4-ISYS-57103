@@ -1,0 +1,297 @@
+openapi: 3.0.0
+info:
+  title: Drone Flight Operations API
+  description: API for accessing data about drones, flight plans, pilots, and routes.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:5000/ # Replace with your actual server URL
+
+paths:
+  /drones:
+    get:
+      summary: Retrieve all drones
+      responses:
+        "200":
+          description: A list of drones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    BUNO_ID:
+                      type: string
+                      description: Unique identifier for the drone
+                    Drone_Model:
+                      type: string
+                      description: Model of the drone
+                    Manufacturer:
+                      type: string
+                      description: Manufacturer of the drone
+                    Purchase_Date:
+                      type: string
+                      format: date
+                      description: Date the drone was purchased
+                    Serial:
+                      type: string
+                      description: Serial number of the drone
+                    Status:
+                      type: string
+                      description: Current status of the drone (e.g., Active, Maintenance)
+                    Status_Code:
+                      type: string
+                      description: Status code for the drone (e.g., OK, MAINT)
+              example: # Example response
+                - BUNO_ID: DR-001
+                  Drone_Model: DJI Phantom 4 Pro
+                  Manufacturer: DJI Innovations
+                  Purchase_Date: "2022-05-20"
+                  Serial: "23456"
+                  Status: Active
+                  Status_Code: OK
+
+  /flight_plans:
+    get:
+      summary: Retrieve all flight plans
+      responses:
+        "200":
+          description: A list of flight plans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    Flight_Plan_ID:
+                      type: string
+                      description: Unique identifier for the flight plan
+                    BUNO_ID:
+                      type: string
+                      description: Unique identifier for the drone associated with the flight plan
+                    Pilot_ID:
+                      type: string
+                      description: Unique identifier for the pilot associated with the flight plan
+                    Route_ID:
+                      type: string
+                      description: Unique identifier for the route associated with the flight plan
+                    IsPlanned:
+                      type: boolean
+                      description: Indicates whether the flight is planned (true) or not (false)
+              example: # Example response
+                - Flight_Plan_ID: FP-001
+                  BUNO_ID: DR-001
+                  Pilot_ID: PILOT-001
+                  Route_ID: RT-001
+                  IsPlanned: true
+
+  /routes:
+    get:
+      summary: Retrieve all routes
+      responses:
+        "200":
+          description: A list of route coordinates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    Route_ID:
+                      type: string
+                      description: Unique identifier for the route
+                    Latitude:
+                      type: number
+                      format: float
+                      description: Latitude coordinate of the route point
+                    Longitude:
+                      type: number
+                      format: float
+                      description: Longitude coordinate of the route point
+              example: # Example response
+                - Route_ID: RT-001
+                  Latitude: 39.9526
+                  Longitude: -75.1652
+
+  /pilots:
+    get:
+      summary: Retrieve all pilots
+      responses:
+        "200":
+          description: A list of pilots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    Pilot_ID:
+                      type: string
+                      description: Unique identifier for the pilot
+                    Pilot_Current:
+                      type: boolean
+                      description: Indicates whether the pilot is currently active (true) or not (false)
+                    Pilot_Hours:
+                      type: integer
+                      description: Total flight hours logged by the pilot
+              example: # Example response
+                - Pilot_ID: PILOT-001
+                  Pilot_Current: true
+                  Pilot_Hours: 1000
+
+  /pilot_stats:
+    get:
+      summary: Retrieve pilot statistics (total pilots and average pilot hours)
+      responses:
+        "200":
+          description: Pilot statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_pilots:
+                    type: integer
+                    description: Total number of unique pilots
+                  average_pilot_hours:
+                    type: number
+                    format: float
+                    description: Average pilot hours
+              example: # Example response
+                total_pilots: 10
+                average_pilot_hours: 650.00
+
+  /planned_route_coordinates:
+    get:
+      summary: Retrieve coordinates for planned routes with generated waypoint IDs
+      responses:
+        "200":
+          description: A list of planned route coordinates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    route_id:
+                      type: string
+                      description: Unique identifier for the route
+                    waypoint_id:
+                      type: string
+                      description: Generated waypoint ID
+                    latitude:
+                      type: number
+                      format: float
+                      description: Latitude coordinate
+                    longitude:
+                      type: number
+                      format: float
+                      description: Longitude coordinate
+              example: # Example response
+                - route_id: RT-001
+                  waypoint_id: WP-1
+                  latitude: 36.368537
+                  longitude: -94.223069
+
+  /drone_model_inventory:
+    get:
+      summary: Retrieve inventory of unique drone models and their counts
+      responses:
+        "200":
+          description: A list of drone models and their counts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    drone_model:
+                      type: string
+                      description: Name of the drone model
+                    count:
+                      type: integer
+                      description: Number of drones of that model
+              example: # Example response
+                - drone_model: DJI Mavic Air 2
+                  count: 10
+
+  /flights_logged_by_pilots:
+    get:
+      summary: Retrieve the total number of flights logged by each pilot
+      responses:
+        "200":
+          description: A list of pilots and their flight counts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    pilot_id:
+                      type: string
+                      description: Unique identifier for the pilot
+                    total_flights:
+                      type: integer
+                      description: Total flights logged by the pilot
+              example: # Example response
+                - pilot_id: PILOT-001
+                  total_flights: 1
+
+  /buno_status:
+    get:
+      summary: Check the status of drones based on their BUNO_ID
+      parameters:
+        - in: query
+          name: status_code
+          schema:
+            type: string
+          description: Filter drones by their status code (e.g., OK, MAINT)
+      responses:
+        "200":
+          description: A list of drones and their status codes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    buno_id:
+                      type: string
+                      description: Unique identifier for the drone
+                    status_code:
+                      type: string
+                      description: Status code of the drone
+              example: # Example response
+                - buno_id: DR-001
+                  status_code: OK
+
+  /unique_drones_in_flight:
+    get:
+      summary: Retrieve the number of unique drones used in each flight
+      responses:
+        "200":
+          description: A list of flights and the number of unique drones used
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    flight_id:
+                      type: string
+                      description: Unique identifier for the flight
+                    unique_drones:
+                      type: integer
+                      description: Number of unique drones used in the flight
+              example: # Example response
+                - flight_id: FP-001
+                  unique_drones: 1
