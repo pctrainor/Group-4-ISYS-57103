@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Drone Flight Operations API</title>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@3/swagger-ui.css"> 
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js"></script> 
+  <script>
+    SwaggerUIBundle({
+      url: 'drone-api.yaml',  // Path to your OpenAPI specification
+      dom_id: '#swagger-ui',
+      presets: [
+        SwaggerUIBundle.presets.apis,
+        SwaggerUIBundle.SwaggerUIStandalonePreset
+      ],
+    });
+  </script>
+</body>
+</html>
