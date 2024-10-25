@@ -35,7 +35,7 @@ paths:
                       format: date
                       description: Date the drone was purchased
                     Serial:
-                      type: string
+                      type: integer
                       description: Serial number of the drone
                     Status:
                       type: string
