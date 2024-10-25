@@ -5,6 +5,10 @@ This API provides access to data about drones, flight plans, pilots, and routes.
 ## Getting Started
  
 The API is defined using an OpenAPI specification (YAML file). You can use this file with tools like Swagger UI or Redoc to generate interactive documentation and explore the API endpoints.
+
+  ## For a full list of queries, follow this link:
+  
+  https://pctrainor.github.io/Group-4-ISYS-57103/
  
 ## Running the API
  
@@ -41,6 +45,4 @@ Here's an example of how to retrieve a list of all drones using the `/drones` en
     "Status_Code": "MAINT" 
   }
 
-  https://pctrainor.github.io/Group-4-ISYS-57103/
-  
 ]
