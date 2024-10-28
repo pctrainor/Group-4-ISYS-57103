@@ -1,11 +1,7 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, send_from_directory
 import api.services as services  # Import your services module
 
 api_bp = Blueprint('api', __name__)
-
-@api_bp.route('/')
-def home():
-    return 'Welcome to the Drone Delivery API!', 200
 
 @api_bp.route('/connection')
 def test_connection():
@@ -29,3 +25,13 @@ def get_drones():
         return jsonify(drone_list), 200
     except Exception as e:
         return jsonify({'error': f'Failed to fetch drones: {str(e)}'}), 500
+    
+@api_bp.route('/drone-api.yaml')
+def serve_openapi_spec():
+    """Serve the OpenAPI specification file."""
+    return send_from_directory('.', 'drone-api.yaml') 
+
+@api_bp.route('/')  # Route for index.html
+def serve_index():
+    """Serve the index.html file."""
+    return send_from_directory('.', 'index.html')
