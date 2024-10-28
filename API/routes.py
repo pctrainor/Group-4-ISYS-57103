@@ -1,21 +1,31 @@
-from flask import Blueprint, jsonify  # Import Blueprint
-from . import model
+from flask import Blueprint, jsonify
+import api.services as services  # Import your services module
 
-# Create the blueprint
 api_bp = Blueprint('api', __name__)
 
-@api_bp.route('/drones')
+@api_bp.route('/')
+def home():
+    return 'Welcome to the Drone Delivery API!', 200
+
+@api_bp.route('/connection')
+def test_connection():
+    """
+    Test the database connection.
+    """
+    try:
+        services.get_db_connection()  # Call the function from services.py
+        return jsonify({'message': 'Successfully connected to the API'}), 200
+    except Exception as e:
+        return jsonify({'error': f'Database connection failed: {str(e)}'}), 500
+
+@api_bp.route("/drones", methods=["GET"])
 def get_drones():
-    # ... your code to fetch and return drone data ...
-    # 1. Connect to your database (using SQLAlchemy or similar)
-    # 2. Fetch drone data from the database
-    # 3. Create a list of Drone objects from the fetched data 
-
-    drones = [
-        model.Drone(BUNO_ID="123", Drone_Model="...", Manufacturer="...", Purchase_Date="...", Serial="...", Status="...", Status_Code="..."),  # Example data with keyword arguments
-        model.Drone(BUNO_ID="456", Drone_Model="...", Manufacturer="...", Purchase_Date="...", Serial="...", Status="...", Status_Code="..."),  # Example data with keyword arguments
-    ]
-
-    # Convert Drone objects to dictionaries for JSON serialization
-    drone_list = [drone.__dict__ for drone in drones] 
-    return jsonify(drone_list)
+    """
+    Retrieve a list of all drones.
+    """
+    try:
+        drones = services.get_all_drones()  # Call the function from services.py
+        drone_list = [drone.__dict__ for drone in drones]
+        return jsonify(drone_list), 200
+    except Exception as e:
+        return jsonify({'error': f'Failed to fetch drones: {str(e)}'}), 500
