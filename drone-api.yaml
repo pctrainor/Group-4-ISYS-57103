@@ -6,10 +6,13 @@ info:
 
 servers:
   - url: http://localhost:5000/api/
+    description: Local Development Server
 
 paths:
   /drones:
     get:
+      tags:
+        - Drones
       summary: Retrieve all drones
       responses:
         "200":
@@ -20,8 +23,92 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Drone"
+    post:
+      tags:
+        - Drones
+      summary: Add a new drone
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Drone"
+      responses:
+        "201":
+          description: Drone created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Drone"
+        "500":
+          description: Failed to create drone
+  /drones/{buno_id}: # Changed drone_id to buno_id
+    get:
+      tags:
+        - Drones
+      summary: Retrieve a drone by ID
+      parameters:
+        - in: path
+          name: buno_id # Changed drone_id to buno_id
+          schema:
+            type: string # Changed type to string
+          required: true
+          description: BUNO_ID of the drone to retrieve
+      responses:
+        "200":
+          description: A drone object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Drone"
+        "404":
+          description: Drone not found
+    put:
+      tags:
+        - Drones
+      summary: Update a drone by ID
+      parameters:
+        - in: path
+          name: buno_id # Changed drone_id to buno_id
+          schema:
+            type: string # Changed type to string
+          required: true
+          description: BUNO_ID of the drone to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Drone"
+      responses:
+        "200":
+          description: Drone updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Drone"
+        "404":
+          description: Drone not found
+    delete:
+      tags:
+        - Drones
+      summary: Delete a drone by ID
+      parameters:
+        - in: path
+          name: buno_id # Changed drone_id to buno_id
+          schema:
+            type: string # Changed type to string
+          required: true
+          description: BUNO_ID of the drone to delete
+      responses:
+        "200":
+          description: Drone deleted successfully
+        "404":
+          description: Drone not found
   /connection:
     get:
+      tags:
+        - Connection # Added a tag for connection testing
       summary: Test the database connection
       responses:
         "200":
@@ -67,6 +154,6 @@ components:
         Drone_Model: DJI Phantom 4 Pro
         Manufacturer: DJI Innovations
         Purchase_Date: "2022-05-20"
-        Serial: "23456"
+        Serial: 23456
         Status: Active
         Status_Code: OK
