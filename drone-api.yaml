@@ -6,10 +6,13 @@ info:
 
 servers:
   - url: http://localhost:5000/api/
+    description: Local Development Server
 
 paths:
   /drones:
     get:
+      tags:
+        - Drones
       summary: Retrieve all drones
       responses:
         "200":
@@ -21,6 +24,8 @@ paths:
                 items:
                   $ref: "#/components/schemas/Drone"
     post:
+      tags:
+        - Drones
       summary: Add a new drone
       requestBody:
         required: true
@@ -39,6 +44,8 @@ paths:
           description: Failed to create drone
   /drones/{buno_id}: # Changed drone_id to buno_id
     get:
+      tags:
+        - Drones
       summary: Retrieve a drone by ID
       parameters:
         - in: path
@@ -57,6 +64,8 @@ paths:
         "404":
           description: Drone not found
     put:
+      tags:
+        - Drones
       summary: Update a drone by ID
       parameters:
         - in: path
@@ -81,6 +90,8 @@ paths:
         "404":
           description: Drone not found
     delete:
+      tags:
+        - Drones
       summary: Delete a drone by ID
       parameters:
         - in: path
@@ -96,6 +107,8 @@ paths:
           description: Drone not found
   /connection:
     get:
+      tags:
+        - Connection # Added a tag for connection testing
       summary: Test the database connection
       responses:
         "200":
