@@ -105,3 +105,74 @@ def delete_drone(buno_id):  # Changed drone_id to buno_id
             return jsonify({'error': 'Drone not found'}), 404
     except Exception as e:
         return jsonify({'error': f'Failed to delete drone: {str(e)}'}), 500
+    
+@api_bp.route("/routes", methods=["GET"])
+def get_routes():
+    """
+    Retrieve a list of all routes.
+    """
+    try:
+        routes = services.get_all_routes()
+        route_list = [route.__dict__ for route in routes]
+        return jsonify(route_list), 200
+    except Exception as e:
+        return jsonify({'error': f'Failed to fetch routes: {str(e)}'}), 500
+
+
+@api_bp.route("/routes/<route_id>", methods=["GET"])
+def get_route(route_id):
+    """
+    Retrieve a specific route by its ID.
+    """
+    try:
+        route = services.get_route_by_id(route_id)
+        if route:
+            return jsonify(route.__dict__), 200
+        else:
+            return jsonify({'error': 'Route not found'}), 404
+    except Exception as e:
+        return jsonify({'error': f'Failed to fetch route: {str(e)}'}), 500
+
+
+@api_bp.route("/routes", methods=["POST"])
+def add_route():
+    """
+    Add a new route.
+    """
+    try:
+        route_data = request.get_json()
+        new_route = services.add_route(route_data)
+        return jsonify(new_route.__dict__), 201
+    except Exception as e:
+        return jsonify({'error': f'Failed to add route: {str(e)}'}), 500
+
+
+@api_bp.route("/routes/<route_id>", methods=["PUT"])
+def update_route(route_id):
+    """
+    Update an existing route by its ID.
+    """
+    try:
+        route_data = request.get_json()
+        updated_route = services.update_route(route_id, route_data)
+        if updated_route:
+            return jsonify(updated_route.__dict__), 200
+        else:
+            return jsonify({'error': 'Route not found'}), 404
+    except Exception as e:
+        return jsonify({'error': f'Failed to update route: {str(e)}'}), 500
+
+
+@api_bp.route("/routes/<route_id>", methods=["DELETE"])
+def delete_route(route_id):
+    """
+    Delete a specific route by its ID.
+    """
+    try:
+        result = services.delete_route(route_id)
+        if result:
+            return jsonify({'message': 'Route deleted successfully'}), 200
+        else:
+            return jsonify({'error': 'Route not found'}), 404
+    except Exception as e:
+        return jsonify({'error': f'Failed to delete route: {str(e)}'}), 500

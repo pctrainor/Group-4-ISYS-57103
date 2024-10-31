@@ -42,16 +42,16 @@ paths:
                 $ref: "#/components/schemas/Drone"
         "500":
           description: Failed to create drone
-  /drones/{buno_id}: # Changed drone_id to buno_id
+  /drones/{buno_id}:
     get:
       tags:
         - Drones
       summary: Retrieve a drone by ID
       parameters:
         - in: path
-          name: buno_id # Changed drone_id to buno_id
+          name: buno_id
           schema:
-            type: string # Changed type to string
+            type: string
           required: true
           description: BUNO_ID of the drone to retrieve
       responses:
@@ -69,9 +69,9 @@ paths:
       summary: Update a drone by ID
       parameters:
         - in: path
-          name: buno_id # Changed drone_id to buno_id
+          name: buno_id
           schema:
-            type: string # Changed type to string
+            type: string
           required: true
           description: BUNO_ID of the drone to update
       requestBody:
@@ -95,9 +95,9 @@ paths:
       summary: Delete a drone by ID
       parameters:
         - in: path
-          name: buno_id # Changed drone_id to buno_id
+          name: buno_id
           schema:
-            type: string # Changed type to string
+            type: string
           required: true
           description: BUNO_ID of the drone to delete
       responses:
@@ -105,10 +105,111 @@ paths:
           description: Drone deleted successfully
         "404":
           description: Drone not found
-  /connection:
+  /routes:
+    get:
+      tags: 
+        - Routes  # Added tag here
+      summary: Retrieve a list of all routes
+      responses:
+        "200":
+          description: A list of routes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Route'
+        "500":
+          description: Failed to fetch routes
+    post:
+      tags:
+        - Routes  # Added tag here
+      summary: Add a new route
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Route'
+      responses:
+        "201":
+          description: Route added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Route'
+        "500":
+          description: Failed to add route
+  /routes/{route_id}:
     get:
       tags:
-        - Connection # Added a tag for connection testing
+        - Routes  # Added tag here
+      summary: Retrieve a specific route by its ID
+      parameters:
+        - in: path
+          name: route_id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A route object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Route'
+        "404":
+          description: Route not found
+        "500":
+          description: Failed to fetch route
+    put:
+      tags:
+        - Routes  # Added tag here
+      summary: Update an existing route by its ID
+      parameters:
+        - in: path
+          name: route_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Route'
+      responses:
+        "200":
+          description: Route updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Route'
+        "404":
+          description: Route not found
+        "500":
+          description: Failed to update route
+    delete:
+      tags:
+        - Routes  # Added tag here
+      summary: Delete a specific route by its ID
+      parameters:
+        - in: path
+          name: route_id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Route deleted successfully
+        "404":
+          description: Route not found
+        "500":
+          description: Failed to delete route
+  /connection:  # Moved this path to the end
+    get:
+      tags:
+        - Connection
       summary: Test the database connection
       responses:
         "200":
@@ -157,3 +258,15 @@ components:
         Serial: 23456
         Status: Active
         Status_Code: OK
+    Route:
+      type: object
+      properties:
+        Route_ID:
+          type: string
+        Latitude:
+          type: number
+          format: float
+        Longitude:
+          type: number
+          format: float
+        # Add more properties as needed (e.g., Start_Point, End_Point, Waypoints)

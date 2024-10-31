@@ -210,3 +210,146 @@ def delete_drone(buno_id):
     except sqlite3.Error as e:
         print(f"Error deleting drone from the database: {e}")
         return False
+    
+# ---------------------------------------------------------
+# Routes
+# ---------------------------------------------------------
+
+def convert_rows_to_route_list(routes):
+    """
+    Converts database rows to Route objects.
+
+    Args:
+        routes (list): Database rows.
+
+    Returns:
+        list: Route objects.
+    """
+    all_routes = []
+    if routes is None:
+        return all_routes
+    for route in routes:
+        route = Route(Route_ID=route["Route_ID"],
+                      Latitude=route["Latitude"],
+                      Longitude=route["Longitude"])
+        all_routes.append(route)
+    return all_routes
+
+
+def get_all_routes() -> List[Route]:
+    """
+    Retrieves all routes.
+
+    Returns:
+        List[Route]: Route objects.
+    """
+    query = "SELECT * FROM routes"
+    routes = run_query(query)
+    return convert_rows_to_route_list(routes)
+
+
+def get_route_by_id(route_id: str) -> Route:
+    """
+    Retrieves a route by its Route_ID.
+
+    Args:
+        route_id (str): The Route_ID of the route.
+
+    Returns:
+        Route: The route object.
+    """
+    query = "SELECT * FROM routes WHERE Route_ID = ?"
+    routes = run_query(query, (route_id, ))
+    route_list = convert_rows_to_route_list(routes)
+    return route_list[0] if route_list else None
+
+
+def add_route(route_data):
+    """
+    Adds a new route to the database.
+
+    Args:
+        route_data (dict): A dictionary containing the route data.
+
+    Returns:
+        Route: The newly added Route object.
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "INSERT INTO routes (Route_ID, Latitude, Longitude) VALUES (?, ?, ?)",
+            (route_data['Route_ID'], route_data['Latitude'],
+             route_data['Longitude']))
+        conn.commit()
+        conn.close()
+
+        new_route = Route(Route_ID=route_data['Route_ID'],
+                          Latitude=route_data['Latitude'],
+                          Longitude=route_data['Longitude'])
+        return new_route
+
+    except sqlite3.Error as e:
+        print(f"Error adding route to the database: {e}")
+        return None
+
+
+def update_route(route_id: str, route_data):
+    """
+    Updates an existing route in the database.
+
+    Args:
+        route_id (str): The Route_ID of the route to update.
+        route_data (dict): A dictionary containing the updated route data.
+
+    Returns:
+        Route: The updated Route object.
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "UPDATE routes SET Latitude = ?, Longitude = ? WHERE Route_ID = ?",
+            (route_data['Latitude'], route_data['Longitude'], route_id))
+        conn.commit()
+        conn.close()
+
+        updated_route = Route(Route_ID=route_id,
+                              Latitude=route_data['Latitude'],
+                              Longitude=route_data['Longitude'])
+        return updated_route
+
+    except sqlite3.Error as e:
+        print(f"Error updating route in the database: {e}")
+        return None
+
+
+def delete_route(route_id: str):
+    """
+    Deletes a route from the database.
+
+    Args:
+        route_id (str): The Route_ID of the route to delete.
+
+    Returns:
+        bool: True if the route was deleted successfully, False otherwise.
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("DELETE FROM routes WHERE Route_ID = ?", (route_id, ))
+
+        if cursor.rowcount > 0:
+            conn.commit()
+            conn.close()
+            return True
+        else:
+            conn.close()
+            return False
+
+    except sqlite3.Error as e:
+        print(f"Error deleting route from the database: {e}")
+        return False
