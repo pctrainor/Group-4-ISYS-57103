@@ -1,6 +1,6 @@
 import sqlite3
 from typing import List
-from api.model import Drone, FlightPlan, Route, Pilot  # Only import necessary models
+from API.model import Drone, FlightPlan, Route, Pilot  # Only import necessary models
 from pathlib import Path
 
 

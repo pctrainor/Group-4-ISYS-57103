@@ -2,7 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 from flasgger import Swagger # Only required if you want to use Swagger UI
 import yaml
-from api.routes import api_bp
+from API.routes import api_bp
 from pathlib import Path
 
 def create_app():
