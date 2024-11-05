@@ -1,0 +1,58 @@
+from flask import Blueprint, jsonify, request
+from . import model  # Assuming you have a model.py with a Pilot class defined
+
+# Create the blueprint
+api_bp = Blueprint('api', __name__)
+
+@api_bp.route('/pilots', methods=['GET', 'POST'])
+def get_or_create_pilots():
+    if request.method == 'GET':
+        # ... your code to fetch and return pilot data ...
+        # 1. Ideally, connect to your database (using SQLAlchemy or similar)
+        # 2. Fetch pilot data from the database
+        # 3. Create a list of Pilot objects from the fetched data 
+
+        # Sample pilot data (replace with database retrieval)
+        pilot_data = [
+            {"Pilot_ID": "PILOT-001", "Pilot_Current": True, "Pilot_Hours": 1000},
+            # ... other pilot data ...
+        ]
+
+        pilots = [model.Pilot(**data) for data in pilot_data]
+        pilot_list = [pilot.__dict__ for pilot in pilots] 
+        return jsonify(pilot_list)
+
+    if request.method == 'POST':
+        # Get the pilot data from the request body
+        data = request.get_json()
+
+        # Create a new Pilot object
+        new_pilot = model.Pilot(**data) 
+
+        # ... your code to save the new pilot to the database ...
+
+        return jsonify(new_pilot.__dict__), 201  # 201 Created
+
+
+@api_bp.route('/pilots/<pilot_id>', methods=['GET', 'PUT', 'DELETE'])
+def get_update_or_delete_pilot(pilot_id):
+    if request.method == 'GET':
+        # ... your code to fetch and return the pilot with the given pilot_id ...
+        pilot = model.Pilot(Pilot_ID=pilot_id, Pilot_Current=True, Pilot_Hours=600)  # Replace with database retrieval
+        if pilot:
+            return jsonify(pilot.__dict__)
+        else:
+            return jsonify({'error': 'Pilot not found'}), 404
+
+    if request.method == 'PUT':
+        # Get the updated pilot data from the request body
+        data = request.get_json()
+
+        # ... your code to update the pilot with the given pilot_id in the database ...
+
+        return jsonify({'message': f'Pilot {pilot_id} updated'}), 200
+
+    if request.method == 'DELETE':
+        # ... your code to delete the pilot with the given pilot_id from the database ...
+
+        return jsonify({'message': f'Pilot {pilot_id} deleted'}), 204  # 204 No Content
