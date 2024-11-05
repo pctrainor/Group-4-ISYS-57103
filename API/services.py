@@ -427,95 +427,109 @@ def delete_flight_plan(flight_plan_id: str):
 # ---------------------------------------------------------
 # Pilots
 # ---------------------------------------------------------
-@api_bp.route('/pilots', methods=['GET', 'POST'])
-def get_or_create_pilots():
-    if request.method == 'GET':
-        # 1. Connect to your database (using SQLAlchemy or similar)
-        # Example using SQLAlchemy (replace with your actual setup):
-        # from . import db  # Assuming you have a db object initialized
-        # pilots = db.session.query(model.Pilot).all()
-
-        # --- Example using in-memory data (replace with database retrieval) ---
-        pilot_data = [
-            {"Pilot_ID": "PILOT-001", "Pilot_Current": True, "Pilot_Hours": 1000},
-            {"Pilot_ID": "PILOT-002", "Pilot_Current": False, "Pilot_Hours": 500},
-            # ... other pilot data ...
-        ]
-        pilots = [model.Pilot(**data) for data in pilot_data]
-        # --- End of example ---
-
-        # Apply limit if provided in the request arguments
-        limit = request.args.get('limit', type=int)
-        if limit:
-            pilots = pilots[:limit]
-
-        pilot_list = [pilot.__dict__ for pilot in pilots]
-        return jsonify(pilot_list)
-
-    if request.method == 'POST':
-        # Get the pilot data from the request body
-        data = request.get_json()
-
-        # Create a new Pilot object
-        new_pilot = model.Pilot(**data)
-
-        # ... your code to save the new pilot to the database ...
-
-        return jsonify(new_pilot.__dict__), 201  # 201 Created
+def convert_rows_to_pilot_list(pilots):
+    """
+    Converts database rows to Pilot objects.
+    """
+    all_pilots = []
+    if pilots is None:
+        return all_pilots
+    for pilot in pilots:
+        pilot = Pilot(Pilot_ID=pilot["Pilot_ID"],
+                      Pilot_Current=bool(pilot["Pilot_Current"]),  # Convert to boolean
+                      Pilot_Hours=pilot["Pilot_Hours"]) 
+        all_pilots.append(pilot)
+    return all_pilots
 
 
-@api_bp.route('/pilots/<pilot_id>', methods=['GET', 'PUT', 'DELETE'])
-def get_update_or_delete_pilot(pilot_id):
-    # --- Example using in-memory data (replace with database retrieval) ---
-    pilot_data = [
-        {"Pilot_ID": "PILOT-001", "Pilot_Current": True, "Pilot_Hours": 1000},
-        {"Pilot_ID": "PILOT-002", "Pilot_Current": False, "Pilot_Hours": 500},
-        # ... other pilot data ...
-    ]
-    pilots = [model.Pilot(**data) for data in pilot_data]
-    # --- End of example ---
+def get_all_pilots() -> List[Pilot]:
+    """
+    Retrieves all pilots.
+    """
+    query = "SELECT * FROM pilots"
+    pilots = run_query(query)
+    return convert_rows_to_pilot_list(pilots)
 
-    if request.method == 'GET':
-        # 1. Connect to your database (if not already connected)
 
-        # 2. Fetch the pilot with the given pilot_id from the database
-        # Example using SQLAlchemy:
-        # from . import db
-        # pilot = db.session.query(model.Pilot).filter_by(Pilot_ID=pilot_id).first()
+def get_pilot_by_id(pilot_id: int) -> Pilot:
+    """
+    Retrieves a pilot by their Pilot_ID.
+    """
+    query = "SELECT * FROM pilots WHERE Pilot_ID = ?"
+    pilots = run_query(query, (pilot_id,))
+    pilot_list = convert_rows_to_pilot_list(pilots)
+    return pilot_list[0] if pilot_list else None
 
-        pilot = next((p for p in pilots if p.Pilot_ID == pilot_id), None)
 
-        if pilot:
-            return jsonify(pilot.__dict__)
+def add_pilot(pilot_data):
+    """
+    Adds a new pilot to the database.
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "INSERT INTO pilots (Pilot_ID, Pilot_Current, Pilot_Hours) VALUES (?, ?, ?)", 
+            (pilot_data['Pilot_ID'], pilot_data['Pilot_Current'], pilot_data['Pilot_Hours'])
+        )
+        conn.commit()
+        conn.close()
+
+        new_pilot = Pilot(Pilot_ID=pilot_data['Pilot_ID'],
+                          Pilot_Current=pilot_data['Pilot_Current'],
+                          Pilot_Hours=pilot_data['Pilot_Hours'])  
+        return new_pilot
+
+    except sqlite3.Error as e:
+        print(f"Error adding pilot to the database: {e}")
+        return None
+
+
+def update_pilot(pilot_id: int, pilot_data):
+    """
+    Updates an existing pilot in the database.
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "UPDATE pilots SET Pilot_Current = ?, Pilot_Hours = ? WHERE Pilot_ID = ?",
+            (pilot_data['Pilot_Current'], pilot_data['Pilot_Hours'], pilot_id)
+        )
+        conn.commit()
+        conn.close()
+
+        updated_pilot = Pilot(Pilot_ID=pilot_id, 
+                              Pilot_Current=pilot_data['Pilot_Current'],
+                              Pilot_Hours=pilot_data['Pilot_Hours'])
+        return updated_pilot
+
+    except sqlite3.Error as e:
+        print(f"Error updating pilot in the database: {e}")
+        return None
+
+
+def delete_pilot(pilot_id: int):
+    """
+    Deletes a pilot from the database.
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("DELETE FROM pilots WHERE Pilot_ID = ?", (pilot_id,))
+
+        if cursor.rowcount > 0:
+            conn.commit()
+            conn.close()
+            return True
         else:
-            return jsonify({'error': 'Pilot not found'}), 404
+            conn.close()
+            return False
 
-    if request.method == 'PUT':
-        # Get the updated pilot data from the request body
-        data = request.get_json()
-
-        # ... your code to update the pilot with the given pilot_id in the database ...
-        pilot = next((p for p in pilots if p.Pilot_ID == pilot_id), None)
-        if pilot:
-            # Update the pilot object with the new data (example)
-            pilot.Pilot_Current = data.get('Pilot_Current', pilot.Pilot_Current)
-            pilot.Pilot_Hours = data.get('Pilot_Hours', pilot.Pilot_Hours)
-            return jsonify({'message': f'Pilot {pilot_id} updated'}), 200
-        else:
-            return jsonify({'error': 'Pilot not found'}), 404
-
-
-    if request.method == 'DELETE':
-        # ... your code to delete the pilot with the given pilot_id from the database ...
-        try:
-            # Find the index of the pilot to delete
-            index = next((i for i, p in enumerate(pilots) if p.Pilot_ID == pilot_id), None)
-
-            if index is not None:
-                # Delete the pilot from the list
-                del pilots[index]
-                return jsonify({'message': f'Pilot {pilot_id} deleted'}), 204  # 204 No Content
-            else:
-                return jsonify({'error': 'Pilot not found'}), 404
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
+    except sqlite3.Error as e:
+        print(f"Error deleting pilot from the database: {e}")
+        return False
+    

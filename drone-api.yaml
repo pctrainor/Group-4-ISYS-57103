@@ -15,14 +15,14 @@ paths:
         - Drones
       summary: Retrieve all drones
       responses:
-        "200":
+        '200':
           description: A list of drones
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Drone"
+                  $ref: '#/components/schemas/Drone'
     post:
       tags:
         - Drones
@@ -32,15 +32,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Drone"
+              $ref: '#/components/schemas/Drone'
       responses:
-        "201":
+        '201':
           description: Drone created successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Drone"
-        "500":
+                $ref: '#/components/schemas/Drone'
+        '500':
           description: Failed to create drone
   /drones/{buno_id}:
     get:
@@ -55,13 +55,13 @@ paths:
           required: true
           description: BUNO_ID of the drone to retrieve
       responses:
-        "200":
+        '200':
           description: A drone object
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Drone"
-        "404":
+                $ref: '#/components/schemas/Drone'
+        '404':
           description: Drone not found
     put:
       tags:
@@ -79,15 +79,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Drone"
+              $ref: '#/components/schemas/Drone'
       responses:
-        "200":
+        '200':
           description: Drone updated successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Drone"
-        "404":
+                $ref: '#/components/schemas/Drone'
+        '404':
           description: Drone not found
     delete:
       tags:
@@ -101,17 +101,115 @@ paths:
           required: true
           description: BUNO_ID of the drone to delete
       responses:
-        "200":
+        '200':
           description: Drone deleted successfully
-        "404":
+        '404':
           description: Drone not found
+
+  /pilots:
+    get:
+      tags:
+        - Pilots
+      summary: Retrieve a list of all pilots
+      responses:
+        '200':
+          description: A list of pilots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pilot'
+    post:
+      tags:
+        - Pilots
+      summary: Add a new pilot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pilot'
+      responses:
+        '201':
+          description: Pilot created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pilot'
+        '500':
+          description: Failed to create pilot
+  /pilots/{pilot_id}:
+    get:
+      tags:
+        - Pilots
+      summary: Retrieve a pilot by ID
+      parameters:
+        - in: path
+          name: pilot_id
+          schema:
+            type: string
+          required: true
+          description: Pilot_ID of the pilot to retrieve
+      responses:
+        '200':
+          description: A pilot object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pilot'
+        '404':
+          description: Pilot not found
+    put:
+      tags:
+        - Pilots
+      summary: Update a pilot by ID
+      parameters:
+        - in: path
+          name: pilot_id
+          schema:
+            type: string
+          required: true
+          description: Pilot_ID of the pilot to update 
+      requestBody: 
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pilot'
+      responses:
+        '200':
+          description: Pilot updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pilot'
+        '404':
+          description: Pilot not found  
+    delete:  # Added DELETE for pilots
+      tags:
+        - Pilots
+      summary: Delete a pilot by ID
+      parameters:
+        - in: path
+          name: pilot_id
+          schema:
+            type: string
+          required: true
+          description: Pilot_ID of the pilot to delete
+      responses:
+        '200':
+          description: Pilot deleted successfully
+        '404':
+          description: Pilot not found 
+
   /routes:
     get:
       tags: 
         - Routes
       summary: Retrieve a list of all routes
       responses:
-        "200":
+        '200':
           description: A list of routes
           content:
             application/json:
@@ -119,7 +217,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Route'
-        "500":
+        '500':
           description: Failed to fetch routes
     post:
       tags:
@@ -132,13 +230,13 @@ paths:
             schema:
               $ref: '#/components/schemas/Route'
       responses:
-        "201":
+        '201':
           description: Route added successfully
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Route'
-        "500":
+        '500':
           description: Failed to add route
   /routes/{route_id}:
     get:
@@ -152,15 +250,15 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: A route object
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Route'
-        "404":
+        '404':
           description: Route not found
-        "500":
+        '500':
           description: Failed to fetch route
     put:
       tags:
@@ -179,15 +277,15 @@ paths:
             schema:
               $ref: '#/components/schemas/Route'
       responses:
-        "200":
+        '200':
           description: Route updated successfully
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Route'
-        "404":
+        '404':
           description: Route not found
-        "500":
+        '500':
           description: Failed to update route
     delete:
       tags:
@@ -200,19 +298,19 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: Route deleted successfully
-        "404":
+        '404':
           description: Route not found
-        "500":
+        '500':
           description: Failed to delete route
-  /flight_plans:  # Flight Plans paths
+  /flight_plans: 
     get:
       tags:
-        - Flight Plans  # Added tag
+        - Flight Plans 
       summary: Retrieve a list of all flight plans
       responses:
-        "200":  # Use double quotes for consistency
+        '200': 
           description: A list of flight plans
           content:
             application/json:
@@ -220,11 +318,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/FlightPlan'
-        "500":  # Use double quotes for consistency
+        '500': 
           description: Failed to fetch flight plans
     post:
       tags:
-        - Flight Plans  # Added tag
+        - Flight Plans 
       summary: Add a new flight plan
       requestBody:
         required: true
@@ -233,18 +331,18 @@ paths:
             schema:
               $ref: '#/components/schemas/FlightPlan'
       responses:
-        "201":  # Use double quotes for consistency
+        '201': 
           description: Flight plan added successfully
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/FlightPlan'
-        "500":  # Use double quotes for consistency
+        '500': 
           description: Failed to add flight plan
-  /flight_plans/{flight_plan_id}:  # Flight Plans paths
+  /flight_plans/{flight_plan_id}:
     get:
       tags:
-        - Flight Plans  # Added tag
+        - Flight Plans
       summary: Retrieve a specific flight plan by its ID
       parameters:
         - in: path
@@ -253,19 +351,19 @@ paths:
           schema:
             type: string
       responses:
-        "200":  # Use double quotes for consistency
+        '200':
           description: A flight plan object
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/FlightPlan'
-        "404":  # Use double quotes for consistency
+        '404':
           description: Flight plan not found
-        "500":  # Use double quotes for consistency
+        '500':
           description: Failed to fetch flight plan
     put:
       tags:
-        - Flight Plans  # Added tag
+        - Flight Plans
       summary: Update an existing flight plan by its ID
       parameters:
         - in: path
@@ -280,19 +378,19 @@ paths:
             schema:
               $ref: '#/components/schemas/FlightPlan'
       responses:
-        "200":  # Use double quotes for consistency
+        '200':
           description: Flight plan updated successfully
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/FlightPlan'
-        "404":  # Use double quotes for consistency
+        '404':
           description: Flight plan not found
-        "500":  # Use double quotes for consistency
+        '500':
           description: Failed to update flight plan
     delete:
       tags:
-        - Flight Plans  # Added tag
+        - Flight Plans
       summary: Delete a specific flight plan by its ID
       parameters:
         - in: path
@@ -301,8 +399,9 @@ paths:
           schema:
             type: string
       responses:
-        "200":  # Use double quotes for consistency
+        '200':
           description: Flight plan deleted successfully
-        "404":  # Use double quotes for consistency
+        '404':
           description: Flight plan not found
-        "500":  # Use double quotes for consistency
+        '500':
+          description: Failed to delete flight plan

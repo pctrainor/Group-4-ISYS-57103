@@ -247,3 +247,74 @@ def delete_flight_plan(flight_plan_id):
             return jsonify({'error': 'Flight plan not found'}), 404
     except Exception as e:
         return jsonify({'error': f'Failed to delete flight plan: {str(e)}'}), 500
+    
+@api_bp.route("/pilots", methods=["GET"])
+def get_pilots():
+    """
+    Retrieve a list of all pilots.
+    """
+    try:
+        pilots = services.get_all_pilots()
+        pilot_list = [pilot.__dict__ for pilot in pilots]
+        return jsonify(pilot_list), 200
+    except Exception as e:
+        return jsonify({'error': f'Failed to fetch pilots: {str(e)}'}), 500
+
+
+@api_bp.route("/pilots/<pilot_id>", methods=["GET"])
+def get_pilot(pilot_id):
+    """
+    Retrieve a specific pilot by their ID.
+    """
+    try:
+        pilot = services.get_pilot_by_id(pilot_id)
+        if pilot:
+            return jsonify(pilot.__dict__), 200
+        else:
+            return jsonify({'error': 'Pilot not found'}), 404
+    except Exception as e:
+        return jsonify({'error': f'Failed to fetch pilot: {str(e)}'}), 500
+
+
+@api_bp.route("/pilots", methods=["POST"])
+def add_pilot():
+    """
+    Add a new pilot.
+    """
+    try:
+        pilot_data = request.get_json()
+        new_pilot = services.add_pilot(pilot_data)
+        return jsonify(new_pilot.__dict__), 201
+    except Exception as e:
+        return jsonify({'error': f'Failed to add pilot: {str(e)}'}), 500
+
+
+@api_bp.route("/pilots/<pilot_id>", methods=["PUT"])
+def update_pilot(pilot_id):
+    """
+    Update an existing pilot by their ID.
+    """
+    try:
+        pilot_data = request.get_json()
+        updated_pilot = services.update_pilot(pilot_id, pilot_data)
+        if updated_pilot:
+            return jsonify(updated_pilot.__dict__), 200
+        else:
+            return jsonify({'error': 'Pilot not found'}), 404
+    except Exception as e:
+        return jsonify({'error': f'Failed to update pilot: {str(e)}'}), 500
+
+
+@api_bp.route("/pilots/<pilot_id>", methods=["DELETE"])
+def delete_pilot(pilot_id):
+    """
+    Delete a specific pilot by their ID.
+    """
+    try:
+        result = services.delete_pilot(pilot_id)
+        if result:
+            return jsonify({'message': 'Pilot deleted successfully'}), 200
+        else:
+            return jsonify({'error': 'Pilot not found'}), 404
+    except Exception as e:
+        return jsonify({'error': f'Failed to delete pilot: {str(e)}'}), 500
