@@ -210,7 +210,7 @@ def delete_drone(buno_id):
     except sqlite3.Error as e:
         print(f"Error deleting drone from the database: {e}")
         return False
-    
+
 # ---------------------------------------------------------
 # Routes
 # ---------------------------------------------------------
@@ -231,10 +231,9 @@ def convert_rows_to_route_list(routes):
     for route in routes:
         route = Route(Route_ID=route["Route_ID"],
                       Latitude=route["Latitude"],
-                      Longitude=route["Longitude"])
+                      Longitude=route["Longitude"])  # Add other attributes as needed
         all_routes.append(route)
     return all_routes
-
 
 def get_all_routes() -> List[Route]:
     """
@@ -247,7 +246,6 @@ def get_all_routes() -> List[Route]:
     routes = run_query(query)
     return convert_rows_to_route_list(routes)
 
-
 def get_route_by_id(route_id: str) -> Route:
     """
     Retrieves a route by its Route_ID.
@@ -259,10 +257,9 @@ def get_route_by_id(route_id: str) -> Route:
         Route: The route object.
     """
     query = "SELECT * FROM routes WHERE Route_ID = ?"
-    routes = run_query(query, (route_id, ))
+    routes = run_query(query, (route_id,))
     route_list = convert_rows_to_route_list(routes)
     return route_list[0] if route_list else None
-
 
 def add_route(route_data):
     """
@@ -274,73 +271,146 @@ def add_route(route_data):
     Returns:
         Route: The newly added Route object.
     """
+
+# ---------------------------------------------------------
+# Flight Plans
+# ---------------------------------------------------------
+
+def convert_rows_to_flight_plan_list(flight_plans):
+    """
+    Converts database rows to FlightPlan objects.
+
+    Args:
+        flight_plans (list): Database rows.
+
+    Returns:
+        list: FlightPlan objects.
+    """
+    all_flight_plans = []
+    if flight_plans is None:
+        return all_flight_plans
+    for flight_plan in flight_plans:
+        flight_plan = FlightPlan(Flight_Plan_ID=flight_plan["Flight_Plan_ID"],
+                                  BUNO_ID=flight_plan["BUNO_ID"],
+                                  Pilot_ID=flight_plan["Pilot_ID"],
+                                  Route_ID=flight_plan["Route_ID"],
+                                  IsPlanned=flight_plan["IsPlanned"])
+        all_flight_plans.append(flight_plan)
+    return all_flight_plans
+
+
+def get_all_flight_plans() -> List[FlightPlan]:
+    """
+    Retrieves all flight plans.
+
+    Returns:
+        List[FlightPlan]: FlightPlan objects.
+    """
+    query = "SELECT * FROM flight_plans"
+    flight_plans = run_query(query)
+    return convert_rows_to_flight_plan_list(flight_plans)
+
+
+def get_flight_plan_by_id(flight_plan_id: str) -> FlightPlan:
+    """
+    Retrieves a flight plan by its Flight_Plan_ID.
+
+    Args:
+        flight_plan_id (str): The Flight_Plan_ID of the flight plan.
+
+    Returns:
+        FlightPlan: The flight plan object.
+    """
+    query = "SELECT * FROM flight_plans WHERE Flight_Plan_ID = ?"
+    flight_plans = run_query(query, (flight_plan_id,))
+    flight_plan_list = convert_rows_to_flight_plan_list(flight_plans)
+    return flight_plan_list[0] if flight_plan_list else None
+
+
+def add_flight_plan(flight_plan_data):
+    """
+    Adds a new flight plan to the database.
+
+    Args:
+        flight_plan_data (dict): A dictionary containing the flight plan data.
+
+    Returns:
+        FlightPlan: The newly added FlightPlan object.
+    """
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
 
         cursor.execute(
-            "INSERT INTO routes (Route_ID, Latitude, Longitude) VALUES (?, ?, ?)",
-            (route_data['Route_ID'], route_data['Latitude'],
-             route_data['Longitude']))
+            "INSERT INTO flight_plans (Flight_Plan_ID, BUNO_ID, Pilot_ID, Route_ID, IsPlanned) VALUES (?, ?, ?, ?, ?)",
+            (flight_plan_data['Flight_Plan_ID'], flight_plan_data['BUNO_ID'],
+             flight_plan_data['Pilot_ID'], flight_plan_data['Route_ID'],
+             flight_plan_data['IsPlanned']))
         conn.commit()
         conn.close()
 
-        new_route = Route(Route_ID=route_data['Route_ID'],
-                          Latitude=route_data['Latitude'],
-                          Longitude=route_data['Longitude'])
-        return new_route
+        new_flight_plan = FlightPlan(Flight_Plan_ID=flight_plan_data['Flight_Plan_ID'],
+                                      BUNO_ID=flight_plan_data['BUNO_ID'],
+                                      Pilot_ID=flight_plan_data['Pilot_ID'],
+                                      Route_ID=flight_plan_data['Route_ID'],
+                                      IsPlanned=flight_plan_data['IsPlanned'])
+        return new_flight_plan
 
     except sqlite3.Error as e:
-        print(f"Error adding route to the database: {e}")
+        print(f"Error adding flight plan to the database: {e}")
         return None
 
 
-def update_route(route_id: str, route_data):
+def update_flight_plan(flight_plan_id: str, flight_plan_data):
     """
-    Updates an existing route in the database.
+    Updates an existing flight plan in the database.
 
     Args:
-        route_id (str): The Route_ID of the route to update.
-        route_data (dict): A dictionary containing the updated route data.
+        flight_plan_id (str): The Flight_Plan_ID of the flight plan to update.
+        flight_plan_data (dict): A dictionary containing the updated flight plan data.
 
     Returns:
-        Route: The updated Route object.
+        FlightPlan: The updated FlightPlan object.
     """
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
 
         cursor.execute(
-            "UPDATE routes SET Latitude = ?, Longitude = ? WHERE Route_ID = ?",
-            (route_data['Latitude'], route_data['Longitude'], route_id))
+            "UPDATE flight_plans SET BUNO_ID = ?, Pilot_ID = ?, Route_ID = ?, IsPlanned = ? WHERE Flight_Plan_ID = ?",
+            (flight_plan_data['BUNO_ID'], flight_plan_data['Pilot_ID'],
+             flight_plan_data['Route_ID'], flight_plan_data['IsPlanned'],
+             flight_plan_id))
         conn.commit()
         conn.close()
 
-        updated_route = Route(Route_ID=route_id,
-                              Latitude=route_data['Latitude'],
-                              Longitude=route_data['Longitude'])
-        return updated_route
+        updated_flight_plan = FlightPlan(Flight_Plan_ID=flight_plan_id,
+                                          BUNO_ID=flight_plan_data['BUNO_ID'],
+                                          Pilot_ID=flight_plan_data['Pilot_ID'],
+                                          Route_ID=flight_plan_data['Route_ID'],
+                                          IsPlanned=flight_plan_data['IsPlanned'])
+        return updated_flight_plan
 
     except sqlite3.Error as e:
-        print(f"Error updating route in the database: {e}")
+        print(f"Error updating flight plan in the database: {e}")
         return None
 
 
-def delete_route(route_id: str):
+def delete_flight_plan(flight_plan_id: str):
     """
-    Deletes a route from the database.
+    Deletes a flight plan from the database.
 
     Args:
-        route_id (str): The Route_ID of the route to delete.
+        flight_plan_id (str): The Flight_Plan_ID of the flight plan to delete.
 
     Returns:
-        bool: True if the route was deleted successfully, False otherwise.
+        bool: True if the flight plan was deleted successfully, False otherwise.
     """
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        cursor.execute("DELETE FROM routes WHERE Route_ID = ?", (route_id, ))
+        cursor.execute("DELETE FROM flight_plans WHERE Flight_Plan_ID = ?", (flight_plan_id,))
 
         if cursor.rowcount > 0:
             conn.commit()
@@ -351,5 +421,5 @@ def delete_route(route_id: str):
             return False
 
     except sqlite3.Error as e:
-        print(f"Error deleting route from the database: {e}")
+        print(f"Error deleting flight plan from the database: {e}")
         return False
