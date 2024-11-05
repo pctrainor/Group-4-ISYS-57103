@@ -176,3 +176,74 @@ def delete_route(route_id):
             return jsonify({'error': 'Route not found'}), 404
     except Exception as e:
         return jsonify({'error': f'Failed to delete route: {str(e)}'}), 500
+    
+@api_bp.route("/flight_plans", methods=["GET"])
+def get_flight_plans():
+    """
+    Retrieve a list of all flight plans.
+    """
+    try:
+        flight_plans = services.get_all_flight_plans()
+        flight_plan_list = [flight_plan.__dict__ for flight_plan in flight_plans]
+        return jsonify(flight_plan_list), 200
+    except Exception as e:
+        return jsonify({'error': f'Failed to fetch flight plans: {str(e)}'}), 500
+
+
+@api_bp.route("/flight_plans/<flight_plan_id>", methods=["GET"])
+def get_flight_plan(flight_plan_id):
+    """
+    Retrieve a specific flight plan by its ID.
+    """
+    try:
+        flight_plan = services.get_flight_plan_by_id(flight_plan_id)
+        if flight_plan:
+            return jsonify(flight_plan.__dict__), 200
+        else:
+            return jsonify({'error': 'Flight plan not found'}), 404
+    except Exception as e:
+        return jsonify({'error': f'Failed to fetch flight plan: {str(e)}'}), 500
+
+
+@api_bp.route("/flight_plans", methods=["POST"])
+def add_flight_plan():
+    """
+    Add a new flight plan.
+    """
+    try:
+        flight_plan_data = request.get_json()
+        new_flight_plan = services.add_flight_plan(flight_plan_data)
+        return jsonify(new_flight_plan.__dict__), 201
+    except Exception as e:
+        return jsonify({'error': f'Failed to add flight plan: {str(e)}'}), 500
+
+
+@api_bp.route("/flight_plans/<flight_plan_id>", methods=["PUT"])
+def update_flight_plan(flight_plan_id):
+    """
+    Update an existing flight plan by its ID.
+    """
+    try:
+        flight_plan_data = request.get_json()
+        updated_flight_plan = services.update_flight_plan(flight_plan_id, flight_plan_data)
+        if updated_flight_plan:
+            return jsonify(updated_flight_plan.__dict__), 200
+        else:
+            return jsonify({'error': 'Flight plan not found'}), 404
+    except Exception as e:
+        return jsonify({'error': f'Failed to update flight plan: {str(e)}'}), 500
+
+
+@api_bp.route("/flight_plans/<flight_plan_id>", methods=["DELETE"])
+def delete_flight_plan(flight_plan_id):
+    """
+    Delete a specific flight plan by its ID.
+    """
+    try:
+        result = services.delete_flight_plan(flight_plan_id)
+        if result:
+            return jsonify({'message': 'Flight plan deleted successfully'}), 200
+        else:
+            return jsonify({'error': 'Flight plan not found'}), 404
+    except Exception as e:
+        return jsonify({'error': f'Failed to delete flight plan: {str(e)}'}), 500
