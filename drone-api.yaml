@@ -108,7 +108,7 @@ paths:
   /routes:
     get:
       tags: 
-        - Routes  # Added tag here
+        - Routes
       summary: Retrieve a list of all routes
       responses:
         "200":
@@ -123,7 +123,7 @@ paths:
           description: Failed to fetch routes
     post:
       tags:
-        - Routes  # Added tag here
+        - Routes
       summary: Add a new route
       requestBody:
         required: true
@@ -143,7 +143,7 @@ paths:
   /routes/{route_id}:
     get:
       tags:
-        - Routes  # Added tag here
+        - Routes
       summary: Retrieve a specific route by its ID
       parameters:
         - in: path
@@ -164,7 +164,7 @@ paths:
           description: Failed to fetch route
     put:
       tags:
-        - Routes  # Added tag here
+        - Routes
       summary: Update an existing route by its ID
       parameters:
         - in: path
@@ -191,7 +191,7 @@ paths:
           description: Failed to update route
     delete:
       tags:
-        - Routes  # Added tag here
+        - Routes
       summary: Delete a specific route by its ID
       parameters:
         - in: path
@@ -206,67 +206,103 @@ paths:
           description: Route not found
         "500":
           description: Failed to delete route
-  /connection:  # Moved this path to the end
+  /flight_plans:  # Flight Plans paths
     get:
       tags:
-        - Connection
-      summary: Test the database connection
+        - Flight Plans  # Added tag
+      summary: Retrieve a list of all flight plans
       responses:
-        "200":
-          description: Connection status message
+        "200":  # Use double quotes for consistency
+          description: A list of flight plans
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Successfully connected to the API
-
-components:
-  schemas:
-    Drone:
-      type: object
-      properties:
-        BUNO_ID:
-          type: string
-          description: Unique identifier for the drone
-        Drone_Model:
-          type: string
-          description: Model of the drone
-        Manufacturer:
-          type: string
-          description: Manufacturer of the drone
-        Purchase_Date:
-          type: string
-          format: date
-          description: Date the drone was purchased
-        Serial:
-          type: integer
-          description: Serial number of the drone
-        Status:
-          type: string
-          description: Current status of the drone (e.g., Active, Maintenance)
-        Status_Code:
-          type: string
-          description: Status code for the drone (e.g., OK, MAINT)
-      example:
-        BUNO_ID: DR-001
-        Drone_Model: DJI Phantom 4 Pro
-        Manufacturer: DJI Innovations
-        Purchase_Date: "2022-05-20"
-        Serial: 23456
-        Status: Active
-        Status_Code: OK
-    Route:
-      type: object
-      properties:
-        Route_ID:
-          type: string
-        Latitude:
-          type: number
-          format: float
-        Longitude:
-          type: number
-          format: float
-        # Add more properties as needed (e.g., Start_Point, End_Point, Waypoints)
+                type: array
+                items:
+                  $ref: '#/components/schemas/FlightPlan'
+        "500":  # Use double quotes for consistency
+          description: Failed to fetch flight plans
+    post:
+      tags:
+        - Flight Plans  # Added tag
+      summary: Add a new flight plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlightPlan'
+      responses:
+        "201":  # Use double quotes for consistency
+          description: Flight plan added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlightPlan'
+        "500":  # Use double quotes for consistency
+          description: Failed to add flight plan
+  /flight_plans/{flight_plan_id}:  # Flight Plans paths
+    get:
+      tags:
+        - Flight Plans  # Added tag
+      summary: Retrieve a specific flight plan by its ID
+      parameters:
+        - in: path
+          name: flight_plan_id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":  # Use double quotes for consistency
+          description: A flight plan object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlightPlan'
+        "404":  # Use double quotes for consistency
+          description: Flight plan not found
+        "500":  # Use double quotes for consistency
+          description: Failed to fetch flight plan
+    put:
+      tags:
+        - Flight Plans  # Added tag
+      summary: Update an existing flight plan by its ID
+      parameters:
+        - in: path
+          name: flight_plan_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlightPlan'
+      responses:
+        "200":  # Use double quotes for consistency
+          description: Flight plan updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlightPlan'
+        "404":  # Use double quotes for consistency
+          description: Flight plan not found
+        "500":  # Use double quotes for consistency
+          description: Failed to update flight plan
+    delete:
+      tags:
+        - Flight Plans  # Added tag
+      summary: Delete a specific flight plan by its ID
+      parameters:
+        - in: path
+          name: flight_plan_id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":  # Use double quotes for consistency
+          description: Flight plan deleted successfully
+        "404":  # Use double quotes for consistency
+          description: Flight plan not found
+        "500":  # Use double quotes for consistency
