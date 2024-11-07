@@ -210,6 +210,60 @@ def delete_drone(buno_id):
     except sqlite3.Error as e:
         print(f"Error deleting drone from the database: {e}")
         return False
+    
+#This is the joined query for drones and pilots (below)
+def get_drone_pilot_info(BUNO_ID: str):
+    """
+    Retrieves drone and pilot information for the given BUNO_ID.
+
+    Args:
+        BUNO_ID (str): The BUNO_ID of the drone.
+
+    Returns:
+        tuple: A tuple containing the drone and pilot information as dictionaries, 
+               or None if no data is found.
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            SELECT *
+            FROM drone
+            INNER JOIN pilot_currency ON drone.Pilot_ID = pilot_currency.Pilot_ID
+            WHERE drone.BUNO_ID = ?
+            """,
+            (BUNO_ID,)
+        )
+        
+        row = cursor.fetchone()
+        conn.close()
+
+        if row:
+            # Assuming column order matches the SELECT statement
+            drone_info = {
+                "BUNO_ID": row[0],
+                "Drone_Model": row[1],
+                "Manufacturer": row[2],
+                "Purchase_Date": row[3],
+                "Serial": row[4],
+                "Status": row[5],
+                "Status_Code": row[6],
+                "Pilot_ID": row[7]
+            }
+            pilot_info = {
+                "Pilot_ID": row[7],
+                "Pilot_Current": row[8],
+                "Pilot_Hours": row[9]
+            }
+            return drone_info, pilot_info 
+        else:
+            return None
+
+    except sqlite3.Error as e:
+        print(f"Error retrieving drone and pilot info from the database: {e}")
+        return None
 
 # ---------------------------------------------------------
 # Routes
@@ -532,4 +586,55 @@ def delete_pilot(pilot_id: int):
     except sqlite3.Error as e:
         print(f"Error deleting pilot from the database: {e}")
         return False
+#this is the join query for pilots and drones!  (below)  
+
+def get_drone_pilot_info_with_filter(min_pilot_hours: int):
+    """
+    Retrieves drone and pilot information for drones where the pilot has 
+    at least the specified minimum pilot hours.
+
+    Args:
+        min_pilot_hours (int): The minimum pilot hours required.
+
+    Returns:
+        list[tuple]: A list of tuples, where each tuple contains a drone 
+                     information dictionary and a pilot information dictionary.
+                     Returns None if no data is found.
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            SELECT BUNO_ID, Drone_Model, Pilot_ID, Pilot_Hours 
+            FROM drone
+            INNER JOIN pilot_currency ON drone.Pilot_ID = pilot_currency.Pilot_ID
+            WHERE Pilot_Hours >= ?
+            """,
+            (min_pilot_hours,)
+        )
+        
+        rows = cursor.fetchall()
+        conn.close()
+
+        if rows:
+            result = []
+            for row in rows:
+                drone_info = {
+                    "BUNO_ID": row[0],
+                    "Drone_Model": row[1]
+                }
+                pilot_info = {
+                    "Pilot_ID": row[2],
+                    "Pilot_Hours": row[3]
+                }
+                result.append((drone_info, pilot_info))
+            return result
+        else:
+            return None
+
+    except sqlite3.Error as e:
+        print(f"Error retrieving drone and pilot info from the database: {e}")
+        return None
     

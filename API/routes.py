@@ -318,3 +318,6 @@ def delete_pilot(pilot_id):
             return jsonify({'error': 'Pilot not found'}), 404
     except Exception as e:
         return jsonify({'error': f'Failed to delete pilot: {str(e)}'}), 500
+    
+
+
