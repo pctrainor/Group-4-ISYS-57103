@@ -26,17 +26,25 @@ def run_query(query, params=None):
         params (tuple, optional): Query parameters.
 
     Returns:
-        list of dict: Query results.
+        list of dict: Query results for SELECT queries.
+        sqlite3.Cursor: Cursor object for non-SELECT queries.
     """
     conn = get_db_connection()
     cursor = conn.cursor()
-    if params is not None:
-        cursor.execute(query, params)
-    else:
-        cursor.execute(query)
-    results = cursor.fetchall()
-    conn.close()
-    return results
+    try:
+        if params is not None:
+            cursor.execute(query, params)
+        else:
+            cursor.execute(query)
+        
+        if query.strip().upper().startswith("SELECT"):
+            results = cursor.fetchall()
+            return results
+        else:
+            conn.commit()
+            return cursor
+    finally:
+        conn.close()
 
 
 # ---------------------------------------------------------
@@ -79,8 +87,6 @@ def get_all_drones() -> List[Drone]:
     drones = run_query(query)  # Use run_query()
     return convert_rows_to_drone_list(drones)
 
-
-# Add other functions for drones (get_drone_by_id, etc.) as needed
 
 def get_drone_by_id(buno_id: int) -> Drone:
     """
@@ -181,6 +187,42 @@ def add_drone(drone_data):
         return None
 
 
+def update_drone(buno_id: int, drone_data: dict) -> Drone:
+    """
+    Updates an existing drone in the database.
+
+    Args:
+        buno_id (int): The BUNO_ID of the drone to update.
+        drone_data (dict): A dictionary containing the updated drone data.
+
+    Returns:
+        Drone: The updated Drone object.
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "UPDATE drones SET Drone_Model = ?, Manufacturer = ?, Purchase_Date = ?, Serial = ?, Status = ?, Status_Code = ? WHERE BUNO_ID = ?",
+            (drone_data['Drone_Model'], drone_data['Manufacturer'], drone_data['Purchase_Date'], drone_data['Serial'], drone_data['Status'], drone_data['Status_Code'], buno_id)
+        )
+        conn.commit()
+        conn.close()
+
+        updated_drone = Drone(BUNO_ID=buno_id,
+                              Drone_Model=drone_data['Drone_Model'],
+                              Manufacturer=drone_data['Manufacturer'],
+                              Purchase_Date=drone_data['Purchase_Date'],
+                              Serial=drone_data['Serial'],
+                              Status=drone_data['Status'],
+                              Status_Code=drone_data['Status_Code'])
+        return updated_drone
+
+    except sqlite3.Error as e:
+        print(f"Error updating drone in the database: {e}")
+        return None
+
+
 def delete_drone(buno_id):
     """
     Deletes a drone from the database.
@@ -211,6 +253,7 @@ def delete_drone(buno_id):
         print(f"Error deleting drone from the database: {e}")
         return False
 
+
 # ---------------------------------------------------------
 # Routes
 # ---------------------------------------------------------
@@ -231,9 +274,11 @@ def convert_rows_to_route_list(routes):
     for route in routes:
         route = Route(Route_ID=route["Route_ID"],
                       Latitude=route["Latitude"],
-                      Longitude=route["Longitude"])  # Add other attributes as needed
+                      Longitude=route["Longitude"],
+                      Waypoint_ID=route["Waypoint_ID"]) 
         all_routes.append(route)
     return all_routes
+
 
 def get_all_routes() -> List[Route]:
     """
@@ -246,7 +291,8 @@ def get_all_routes() -> List[Route]:
     routes = run_query(query)
     return convert_rows_to_route_list(routes)
 
-def get_route_by_id(route_id: str) -> Route:
+
+def get_route_by_id(route_id: str) -> List[Route]:
     """
     Retrieves a route by its Route_ID.
 
@@ -254,23 +300,122 @@ def get_route_by_id(route_id: str) -> Route:
         route_id (str): The Route_ID of the route.
 
     Returns:
-        Route: The route object.
+        List[Route]: The list of route objects with the given Route_ID.
     """
     query = "SELECT * FROM routes WHERE Route_ID = ?"
     routes = run_query(query, (route_id,))
     route_list = convert_rows_to_route_list(routes)
-    return route_list[0] if route_list else None
+    return route_list if route_list else None
 
-def add_route(route_data):
+
+def get_route_waypoint(route_id: str, waypoint_id: str) -> Route:
     """
-    Adds a new route to the database.
+    Retrieves a specific waypoint for a given route by its Route_ID and Waypoint_ID.
 
     Args:
-        route_data (dict): A dictionary containing the route data.
+        route_id (str): The Route_ID of the route.
+        waypoint_id (str): The Waypoint_ID of the waypoint.
+
+    Returns:
+        Route: The route object with the given Route_ID and Waypoint_ID.
+    """
+    query = "SELECT * FROM routes WHERE Route_ID = ? AND Waypoint_ID = ?"
+    routes = run_query(query, (route_id, waypoint_id))
+    route_list = convert_rows_to_route_list(routes)
+    return route_list[0] if route_list else None
+
+
+def add_route_waypoint(route_id: str, waypoint_id: str, waypoint_data: dict) -> Route:
+    """
+    Adds a new waypoint to the route in the database.
+
+    Args:
+        route_id (str): The Route_ID of the route.
+        waypoint_id (str): The Waypoint_ID of the waypoint.
+        waypoint_data (dict): A dictionary containing the waypoint data.
 
     Returns:
         Route: The newly added Route object.
     """
+    query = "INSERT INTO routes (Route_ID, Latitude, Longitude, Waypoint_ID) VALUES (?, ?, ?, ?)"
+    params = (route_id, waypoint_data.get('Latitude'), waypoint_data.get('Longitude'), waypoint_id)
+    try:
+        run_query(query, params)
+        new_waypoint = Route(Route_ID=route_id,
+                             Latitude=waypoint_data.get('Latitude'),
+                             Longitude=waypoint_data.get('Longitude'),
+                             Waypoint_ID=waypoint_id)
+        return new_waypoint
+    except sqlite3.Error as e:
+        print(f"Error adding route waypoint to the database: {e}")
+        return None
+
+
+def delete_route_waypoint(route_id: str, waypoint_id: str) -> bool:
+    """
+    Deletes a waypoint from a route in the database.
+
+    Args:
+        route_id (str): The Route_ID of the route.
+        waypoint_id (str): The Waypoint_ID of the waypoint to delete.
+
+    Returns:
+        bool: True if the waypoint was deleted successfully, False otherwise.
+    """
+    query = "DELETE FROM routes WHERE Route_ID = ? AND Waypoint_ID = ?"
+    params = (route_id, waypoint_id)
+    try:
+        result = run_query(query, params)
+        return result.rowcount > 0
+    except sqlite3.Error as e:
+        print(f"Error deleting route waypoint from the database: {e}")
+        return False
+
+def update_route_waypoint(route_id: str, waypoint_id: str, waypoint_data: dict) -> Route:
+    """
+    Updates an existing waypoint in the route in the database.
+
+    Args:
+        route_id (str): The Route_ID of the route.
+        waypoint_id (str): The Waypoint_ID of the waypoint to update.
+        waypoint_data (dict): A dictionary containing the updated waypoint data.
+
+    Returns:
+        Route: The updated Route object.
+    """
+    query = "UPDATE routes SET Latitude = ?, Longitude = ? WHERE Route_ID = ? AND Waypoint_ID = ?"
+    params = (waypoint_data['Latitude'], waypoint_data['Longitude'], route_id, waypoint_id)
+    try:
+        run_query(query, params)
+        updated_waypoint = Route(Route_ID=route_id,
+                                 Latitude=waypoint_data['Latitude'],
+                                 Longitude=waypoint_data['Longitude'],
+                                 Waypoint_ID=waypoint_id)
+        return updated_waypoint
+    except sqlite3.Error as e:
+        print(f"Error updating route waypoint in the database: {e}")
+        return None
+
+
+def delete_route(route_id: str):
+    """
+    Deletes a route from the database.
+
+    Args:
+        route_id (str): The Route_ID of the route to delete.
+
+    Returns:
+        bool: True if the route was deleted successfully, False otherwise.
+    """
+    query = "DELETE FROM routes WHERE Route_ID = ?"
+    params = (route_id,)
+    try:
+        result = run_query(query, params)
+        return result.rowcount > 0
+    except sqlite3.Error as e:
+        print(f"Error deleting route from the database: {e}")
+        return False
+
 
 # ---------------------------------------------------------
 # Flight Plans
@@ -423,10 +568,12 @@ def delete_flight_plan(flight_plan_id: str):
     except sqlite3.Error as e:
         print(f"Error deleting flight plan from the database: {e}")
         return False
-    
+
+
 # ---------------------------------------------------------
 # Pilots
 # ---------------------------------------------------------
+
 def convert_rows_to_pilot_list(pilots):
     """
     Converts database rows to Pilot objects.
@@ -532,4 +679,3 @@ def delete_pilot(pilot_id: int):
     except sqlite3.Error as e:
         print(f"Error deleting pilot from the database: {e}")
         return False
-    
