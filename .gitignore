@@ -1,2 +1,6 @@
 __pycache__
 model.cpython-311.pyc
+API/__pycache__/__init__.cpython-311.pyc
+API/__pycache__/model.cpython-311.pyc
+API/__pycache__/routes.cpython-311.pyc
+API/__pycache__/services.cpython-311.pyc
