@@ -186,7 +186,7 @@ paths:
                 $ref: "#/components/schemas/Pilot"
         "404":
           description: Pilot not found
-    delete: # Added DELETE for pilots
+    delete:
       tags:
         - Pilots
       summary: Delete a pilot by ID
@@ -207,10 +207,10 @@ paths:
     get:
       tags:
         - Routes
-      summary: Retrieve a list of all routes
+      summary: Get all routes
       responses:
         "200":
-          description: A list of routes
+          description: A list of route objects
           content:
             application/json:
               schema:
@@ -222,7 +222,7 @@ paths:
     post:
       tags:
         - Routes
-      summary: Add a new route
+      summary: Create a new route
       requestBody:
         required: true
         content:
@@ -231,18 +231,18 @@ paths:
               $ref: "#/components/schemas/Route"
       responses:
         "201":
-          description: Route added successfully
+          description: Route created
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Route"
-        "500":
+        "400":
           description: Failed to add route
   /routes/{route_id}:
     get:
       tags:
         - Routes
-      summary: Retrieve a specific route by its ID
+      summary: Get all waypoints for a given route by its ID
       parameters:
         - in: path
           name: route_id
@@ -251,22 +251,103 @@ paths:
             type: string
       responses:
         "200":
-          description: A route object
+          description: A list of route objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Route"
+        "404":
+          description: Route not found
+        "500":
+          description: Failed to fetch route
+    delete:
+      tags:
+        - Routes
+      summary: Delete an existing route by its ID
+      parameters:
+        - in: path
+          name: route_id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Route deleted
+        "404":
+          description: Route not found
+        "500":
+          description: Failed to delete route
+  /routes/{route_id}/{waypoint_id}:
+    get:
+      tags:
+        - Routes
+      summary: Get a specific waypoint for a route by its ID
+      parameters:
+        - in: path
+          name: route_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: waypoint_id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A waypoint object
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Route"
         "404":
-          description: Route not found
+          description: Waypoint not found
         "500":
-          description: Failed to fetch route
-    put:
+          description: Failed to fetch waypoint
+    post:
       tags:
         - Routes
-      summary: Update an existing route by its ID
+      summary: Add a new waypoint to a route
       parameters:
         - in: path
           name: route_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: waypoint_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Route"
+      responses:
+        "201":
+          description: Waypoint added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Route"
+        "500":
+          description: Failed to add waypoint
+    put:
+      tags:
+        - Routes
+      summary: Update an existing waypoint in a route
+      parameters:
+        - in: path
+          name: route_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: waypoint_id
           required: true
           schema:
             type: string
@@ -278,32 +359,38 @@ paths:
               $ref: "#/components/schemas/Route"
       responses:
         "200":
-          description: Route updated successfully
+          description: Waypoint updated
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Route"
         "404":
-          description: Route not found
+          description: Waypoint not found
         "500":
-          description: Failed to update route
+          description: Failed to update waypoint
     delete:
       tags:
         - Routes
-      summary: Delete a specific route by its ID
+      summary: Delete a specific waypoint for a route by its ID
       parameters:
         - in: path
           name: route_id
           required: true
           schema:
             type: string
+        - in: path
+          name: waypoint_id
+          required: true
+          schema:
+            type: string
       responses:
         "200":
-          description: Route deleted successfully
+          description: Waypoint deleted
         "404":
-          description: Route not found
+          description: Waypoint not found
         "500":
-          description: Failed to delete route
+          description: Failed to delete waypoint
+
   /flight_plans:
     get:
       tags:
@@ -408,59 +495,6 @@ paths:
 
 components:
   schemas:
-    Drone:
-      type: object
-      properties:
-        BUNO_ID: # Use the correct casing for BUNO_ID
-          type: string
-        Drone_Model:
-          type: string
-        Manufacturer:
-          type: string
-        Purchase_Date:
-          type: string
-          format: date # Specify date format
-        Serial:
-          type: integer
-        Status:
-          type: string
-        Status_Code:
-          type: string
-      required:
-        - BUNO_ID
-        - Drone_Model
-        - Manufacturer
-        - Purchase_Date
-        - Serial
-        - Status
-        - Status_Code
-      example: # Add an example for Drone
-        BUNO_ID: "DR-001"
-        Drone_Model: "DJI Mavic 3"
-        Manufacturer: "DJI"
-        Purchase_Date: "2023-10-26"
-        Serial: 1234567
-        Status: "Active"
-        Status_Code: "OK"
-
-    Pilot:
-      type: object
-      properties:
-        Pilot_ID:
-          type: string
-        Pilot_Current:
-          type: boolean
-        Pilot_Hours:
-          type: integer
-      required:
-        - Pilot_ID
-        - Pilot_Current
-        - Pilot_Hours
-      example: # Add an example for Pilot
-        Pilot_ID: "PILOT-001"
-        Pilot_Current: true
-        Pilot_Hours: 1500
-
     Route:
       type: object
       properties:
@@ -472,15 +506,18 @@ components:
         Longitude:
           type: number
           format: float
+        Waypoint_ID:
+          type: string
       required:
         - Route_ID
         - Latitude
         - Longitude
-      example: # Add an example for Route
+        - Waypoint_ID
+      example:
         Route_ID: "RT-001"
         Latitude: 34.0522
         Longitude: -118.2437
-
+        Waypoint_ID: "1"
     FlightPlan:
       type: object
       properties:
@@ -500,9 +537,60 @@ components:
         - Pilot_ID
         - Route_ID
         - IsPlanned
-      example: # Add an example for FlightPlan
+      example:
         Flight_Plan_ID: "FP-001"
         BUNO_ID: "DR-001"
         Pilot_ID: "PILOT-001"
         Route_ID: "RT-001"
         IsPlanned: true
+    Drone:
+      type: object
+      properties:
+        BUNO_ID:
+          type: string
+        Drone_Model:
+          type: string
+        Manufacturer:
+          type: string
+        Purchase_Date:
+          type: string
+          format: date
+        Serial:
+          type: string
+        Status:
+          type: string
+        Status_Code:
+          type: string
+      required:
+        - BUNO_ID
+        - Drone_Model
+        - Manufacturer
+        - Purchase_Date
+        - Serial
+        - Status
+        - Status_Code
+      example:
+        BUNO_ID: "DR-001"
+        Drone_Model: "Model X"
+        Manufacturer: "DroneCorp"
+        Purchase_Date: "2023-01-01"
+        Serial: "SN123456"
+        Status: "Active"
+        Status_Code: "A1"
+    Pilot:
+      type: object
+      properties:
+        Pilot_ID:
+          type: string
+        Pilot_Current:
+          type: boolean
+        Pilot_Hours:
+          type: integer
+      required:
+        - Pilot_ID
+        - Pilot_Current
+        - Pilot_Hours
+      example:
+        Pilot_ID: "PILOT-001"
+        Pilot_Current: true
+        Pilot_Hours: 1500

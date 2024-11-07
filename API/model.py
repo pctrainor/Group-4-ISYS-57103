@@ -15,7 +15,7 @@ class FlightPlan:
     Flight_Plan_ID: str
     BUNO_ID: str
     Pilot_ID: str
-    Route_ID: str
+    Route_ID: str 
     IsPlanned: bool
 
 @dataclass
@@ -23,6 +23,7 @@ class Route:
     Route_ID: str
     Latitude: float
     Longitude: float
+    Waypoint_ID: str 
 
 @dataclass
 class Pilot:

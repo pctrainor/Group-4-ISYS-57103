@@ -90,92 +90,97 @@ def update_drone(buno_id):  # Changed drone_id to buno_id
         return jsonify({'error': f'Failed to update drone: {str(e)}'}), 500
 
 
-@api_bp.route(
-    "/drones/<buno_id>", methods=["DELETE"])  # Changed drone_id to buno_id
+@api_bp.route("/drones/<buno_id>", methods=["DELETE"])  # Changed drone_id to buno_id
 def delete_drone(buno_id):  # Changed drone_id to buno_id
     """
     Delete a specific drone by its ID.
     """
     try:
-        result = services.delete_drone(
-            buno_id)  # Call the function from services.py and pass buno_id
+        result = services.delete_drone(buno_id)  # Call the function from services.py and pass buno_id
         if result:
             return jsonify({'message': 'Drone deleted successfully'}), 200
         else:
             return jsonify({'error': 'Drone not found'}), 404
     except Exception as e:
         return jsonify({'error': f'Failed to delete drone: {str(e)}'}), 500
-    
+
+
 @api_bp.route("/routes", methods=["GET"])
 def get_routes():
-    """
-    Retrieve a list of all routes.
-    """
-    try:
-        routes = services.get_all_routes()
-        route_list = [route.__dict__ for route in routes]
-        return jsonify(route_list), 200
-    except Exception as e:
-        return jsonify({'error': f'Failed to fetch routes: {str(e)}'}), 500
-
+    routes = services.get_all_routes()
+    return jsonify([route.__dict__ for route in routes])
 
 @api_bp.route("/routes/<route_id>", methods=["GET"])
-def get_route(route_id):
-    """
-    Retrieve a specific route by its ID.
-    """
+def get_route_by_id_handler(route_id):
+    routes = services.get_route_by_id(route_id)
+    if routes:
+        return jsonify([route.__dict__ for route in routes])
+    else:
+        return jsonify({"error": "Route not found"}), 404
+
+
+@api_bp.route("/routes/<route_id>/<waypoint_id>", methods=["GET"])
+def get_route_waypoint(route_id, waypoint_id):
     try:
-        route = services.get_route_by_id(route_id)
-        if route:
-            return jsonify(route.__dict__), 200
+        waypoint = services.get_route_waypoint(route_id, waypoint_id)
+        if waypoint:
+            return jsonify(waypoint.__dict__), 200
         else:
-            return jsonify({'error': 'Route not found'}), 404
+            return jsonify({'error': 'Waypoint not found'}), 404
     except Exception as e:
-        return jsonify({'error': f'Failed to fetch route: {str(e)}'}), 500
+        return jsonify({'error': f'Failed to fetch waypoint: {str(e)}'}), 500
 
 
-@api_bp.route("/routes", methods=["POST"])
-def add_route():
+@api_bp.route("/routes/<route_id>/<waypoint_id>", methods=["POST"])
+def add_route_waypoint(route_id, waypoint_id):
     """
-    Add a new route.
+    Add a new waypoint to a route.
     """
     try:
-        route_data = request.get_json()
-        new_route = services.add_route(route_data)
-        return jsonify(new_route.__dict__), 201
+        waypoint_data = request.get_json()
+        new_waypoint = services.add_route_waypoint(route_id, waypoint_id, waypoint_data)
+        return jsonify(new_waypoint.__dict__), 201
     except Exception as e:
-        return jsonify({'error': f'Failed to add route: {str(e)}'}), 500
+        return jsonify({'error': f'Failed to add waypoint: {str(e)}'}), 500
+    
 
-
-@api_bp.route("/routes/<route_id>", methods=["PUT"])
-def update_route(route_id):
-    """
-    Update an existing route by its ID.
-    """
+@api_bp.route("/routes/<route_id>/<waypoint_id>", methods=["DELETE"])
+def delete_route_waypoint(route_id, waypoint_id):
     try:
-        route_data = request.get_json()
-        updated_route = services.update_route(route_id, route_data)
-        if updated_route:
-            return jsonify(updated_route.__dict__), 200
+        if services.delete_route_waypoint(route_id, waypoint_id):
+            return jsonify({"message": "Waypoint deleted"}), 200
         else:
-            return jsonify({'error': 'Route not found'}), 404
+            return jsonify({"error": "Waypoint not found"}), 404
     except Exception as e:
-        return jsonify({'error': f'Failed to update route: {str(e)}'}), 500
+        return jsonify({'error': f'Failed to delete waypoint: {str(e)}'}), 500
+
+
+@api_bp.route("/routes/<route_id>/<waypoint_id>", methods=["PUT"])
+def update_route_waypoint(route_id, waypoint_id):
+    """
+    Update an existing waypoint in a route.
+    """
+    try:
+        waypoint_data = request.get_json()
+        updated_waypoint = services.update_route_waypoint(route_id, waypoint_id, waypoint_data)
+        if updated_waypoint:
+            return jsonify(updated_waypoint.__dict__), 200
+        else:
+            return jsonify({"error": "Waypoint not found"}), 404
+    except Exception as e:
+        return jsonify({'error': f'Failed to update waypoint: {str(e)}'}), 500
 
 
 @api_bp.route("/routes/<route_id>", methods=["DELETE"])
 def delete_route(route_id):
-    """
-    Delete a specific route by its ID.
-    """
     try:
-        result = services.delete_route(route_id)
-        if result:
-            return jsonify({'message': 'Route deleted successfully'}), 200
+        if services.delete_route(route_id):
+            return jsonify({"message": "Route deleted"}), 200
         else:
-            return jsonify({'error': 'Route not found'}), 404
+            return jsonify({"error": "Route not found"}), 404
     except Exception as e:
         return jsonify({'error': f'Failed to delete route: {str(e)}'}), 500
+    
     
 @api_bp.route("/flight_plans", methods=["GET"])
 def get_flight_plans():
