@@ -47,6 +47,7 @@ flight_plans = sa.Table(
 routes = sa.Table(
     'routes', metadata,
     sa.Column('Route_ID', sa.String, primary_key=True),
+    sa.Column('Waypoint_ID', sa.String),  # Added Waypoint_ID column
     sa.Column('Latitude', sa.Float),
     sa.Column('Longitude', sa.Float),
 )
@@ -57,7 +58,6 @@ pilots = sa.Table(
     sa.Column('Pilot_Current', sa.Boolean),
     sa.Column('Pilot_Hours', sa.Integer)
 )
-
 
 # --- Data Loading ---
 # Construct the path to the CSV files in the raw_data folder
