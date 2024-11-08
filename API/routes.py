@@ -216,6 +216,18 @@ def get_flight_plans():
         return jsonify({'error': f'Failed to fetch flight plans: {str(e)}'}), 500
 
 
+@api_bp.route('/flight_plans/flight_plans_with_routes', methods=['GET'])
+def flight_plans_with_routes():
+    try:
+        flight_plans = services.get_flight_plans_with_routes()
+        if flight_plans:
+            return jsonify(flight_plans), 200
+        else:
+            return jsonify({"error": "Failed to retrieve flight plans with routes"}), 500
+    except Exception as e:
+        return jsonify({'error': f'Failed to retrieve flight plans with routes: {str(e)}'}), 500
+    
+    
 @api_bp.route("/flight_plans/<flight_plan_id>", methods=["GET"])
 def get_flight_plan(flight_plan_id):
     """
