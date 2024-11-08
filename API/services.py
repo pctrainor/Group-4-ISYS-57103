@@ -622,7 +622,40 @@ def delete_flight_plan(flight_plan_id: str):
         print(f"Error deleting flight plan from the database: {e}")
         return False
 
+def get_flight_plans_with_routes():
+    """
+    Retrieves flight plans along with their associated route details.
 
+    Returns:
+        list[dict]: A list of dictionaries, where each dictionary contains flight plan 
+                    and route details.
+    """
+    query = """
+    SELECT fp.Flight_Plan_ID, fp.BUNO_ID, fp.Pilot_ID, fp.Route_ID, fp.IsPlanned,
+           r.Latitude, r.Longitude, r.Waypoint_ID
+    FROM flight_plans fp
+    INNER JOIN routes r ON fp.Route_ID = r.Route_ID
+    """
+    try:
+        flight_plans_with_routes = run_query(query)
+        result = []
+        for row in flight_plans_with_routes:
+            flight_plan_info = {
+                "Flight_Plan_ID": row["Flight_Plan_ID"],
+                "BUNO_ID": row["BUNO_ID"],
+                "Pilot_ID": row["Pilot_ID"],
+                "Route_ID": row["Route_ID"],
+                "IsPlanned": row["IsPlanned"],
+                "Latitude": row["Latitude"],
+                "Longitude": row["Longitude"],
+                "Waypoint_ID": row["Waypoint_ID"]
+            }
+            result.append(flight_plan_info)
+        return result
+    except sqlite3.Error as e:
+        print(f"Error retrieving flight plans with routes from the database: {e}")
+        return None
+    
 # ---------------------------------------------------------
 # Pilots
 # ---------------------------------------------------------
