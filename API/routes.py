@@ -103,6 +103,27 @@ def delete_drone(buno_id):  # Changed drone_id to buno_id
             return jsonify({'error': 'Drone not found'}), 404
     except Exception as e:
         return jsonify({'error': f'Failed to delete drone: {str(e)}'}), 500
+    
+@api_bp.route("/drones/<buno_id>/pilot_info", methods=["GET"])
+def get_drone_pilot_info_api(buno_id):
+    """
+    API endpoint to retrieve drone and pilot information for the given BUNO_ID.
+    """
+    try:
+        # Assuming 'services' is defined elsewhere and has the function
+        result = services.get_drone_pilot_info(buno_id)
+ 
+        if result:
+            drone_info, pilot_info = result 
+            return jsonify({
+                "drone": drone_info,
+                "pilot": pilot_info
+            }), 200
+        else:
+            return jsonify({"error": f"Drone with BUNO_ID '{buno_id}' not found"}), 404
+ 
+    except Exception as e:
+        return jsonify({'error': f'Failed to retrieve drone and pilot info: {str(e)}'}), 500
 
 
 @api_bp.route("/routes", methods=["GET"])
@@ -323,3 +344,30 @@ def delete_pilot(pilot_id):
             return jsonify({'error': 'Pilot not found'}), 404
     except Exception as e:
         return jsonify({'error': f'Failed to delete pilot: {str(e)}'}), 500
+    
+@api_bp.route("/drones/pilot_info", methods=["GET"])
+def get_drone_pilot_info_with_filter_api():
+    """
+    API endpoint to retrieve drone and pilot information for drones 
+    where the pilot has at least the specified minimum pilot hours.
+    """
+    try:
+        min_pilot_hours = int(request.args.get('min_pilot_hours', 0)) 
+        # Assuming 'services' is defined elsewhere and has the function
+        result = services.get_drone_pilot_info_with_filter(min_pilot_hours)  
+        if result:
+            # Convert list of tuples to list of dictionaries for JSON response
+            formatted_result = []
+            for drone_info, pilot_info in result:
+                formatted_result.append({
+                    "drone": drone_info,
+                    "pilot": pilot_info
+                })
+            return jsonify(formatted_result), 200
+        else:
+            return jsonify({"error": "No drones found with the specified criteria"}), 404
+ 
+    except ValueError:
+        return jsonify({"error": "Invalid 'min_pilot_hours' value"}), 400
+    except Exception as e:
+        return jsonify({'error': f'Failed to retrieve drone and pilot info: {str(e)}'}), 500
