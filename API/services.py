@@ -253,6 +253,7 @@ def delete_drone(buno_id):
         print(f"Error deleting drone from the database: {e}")
         return False
     
+
 def get_drone_pilot_info(BUNO_ID: str):
     """
     Retrieves drone and pilot information for the given BUNO_ID.
@@ -262,50 +263,45 @@ def get_drone_pilot_info(BUNO_ID: str):
 
     Returns:
         tuple: A tuple containing the drone and pilot information as dictionaries, 
-               or None if no data is found.
+                or None if no data is found.
+    """
+    query = """
+    SELECT d.BUNO_ID, d.Drone_Model, d.Manufacturer, d.Purchase_Date, d.Serial, d.Status, d.Status_Code,
+            p.Pilot_ID, p.Pilot_Current, p.Pilot_Hours
+    FROM drones d
+    INNER JOIN flight_plans fp ON d.BUNO_ID = fp.BUNO_ID
+    INNER JOIN pilots p ON fp.Pilot_ID = p.Pilot_ID
+    WHERE d.BUNO_ID = ?
     """
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-
-        cursor.execute(
-            """
-            SELECT *
-            FROM drone
-            INNER JOIN pilot_currency ON drone.Pilot_ID = pilot_currency.Pilot_ID
-            WHERE drone.BUNO_ID = ?
-            """,
-            (BUNO_ID,)
-        )
-        
+        cursor.execute(query, (BUNO_ID,))
         row = cursor.fetchone()
         conn.close()
 
         if row:
-            # Assuming column order matches the SELECT statement
             drone_info = {
-                "BUNO_ID": row[0],
-                "Drone_Model": row[1],
-                "Manufacturer": row[2],
-                "Purchase_Date": row[3],
-                "Serial": row[4],
-                "Status": row[5],
-                "Status_Code": row[6],
-                "Pilot_ID": row[7]
+                "BUNO_ID": row["BUNO_ID"],
+                "Drone_Model": row["Drone_Model"],
+                "Manufacturer": row["Manufacturer"],
+                "Purchase_Date": row["Purchase_Date"],
+                "Serial": row["Serial"],
+                "Status": row["Status"],
+                "Status_Code": row["Status_Code"]
             }
             pilot_info = {
-                "Pilot_ID": row[7],
-                "Pilot_Current": row[8],
-                "Pilot_Hours": row[9]
+                "Pilot_ID": row["Pilot_ID"],
+                "Pilot_Current": bool(row["Pilot_Current"]),
+                "Pilot_Hours": row["Pilot_Hours"]
             }
-            return drone_info, pilot_info 
+            return drone_info, pilot_info
         else:
             return None
 
     except sqlite3.Error as e:
         print(f"Error retrieving drone and pilot info from the database: {e}")
         return None
-
 
 # ---------------------------------------------------------
 # Routes
@@ -766,52 +762,21 @@ def delete_pilot(pilot_id: int):
         print(f"Error deleting pilot from the database: {e}")
         return False
     
-def get_drone_pilot_info_with_filter(min_pilot_hours: int):
+    
+def get_pilots_with_min_hours(min_pilot_hours: int) -> List[Pilot]:
     """
-    Retrieves drone and pilot information for drones where the pilot has 
-    at least the specified minimum pilot hours.
+    Retrieves pilots with at least the specified minimum pilot hours.
 
     Args:
         min_pilot_hours (int): The minimum pilot hours required.
 
     Returns:
-        list[tuple]: A list of tuples, where each tuple contains a drone 
-                     information dictionary and a pilot information dictionary.
-                     Returns None if no data is found.
+        List[Pilot]: A list of Pilot objects that meet the minimum pilot hours requirement.
     """
+    query = "SELECT * FROM pilots WHERE Pilot_Hours >= ?"
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        cursor.execute(
-            """
-            SELECT BUNO_ID, Drone_Model, Pilot_ID, Pilot_Hours 
-            FROM drone
-            INNER JOIN pilot_currency ON drone.Pilot_ID = pilot_currency.Pilot_ID
-            WHERE Pilot_Hours >= ?
-            """,
-            (min_pilot_hours,)
-        )
-        
-        rows = cursor.fetchall()
-        conn.close()
-
-        if rows:
-            result = []
-            for row in rows:
-                drone_info = {
-                    "BUNO_ID": row[0],
-                    "Drone_Model": row[1]
-                }
-                pilot_info = {
-                    "Pilot_ID": row[2],
-                    "Pilot_Hours": row[3]
-                }
-                result.append((drone_info, pilot_info))
-            return result
-        else:
-            return None
-
+        pilots = run_query(query, (min_pilot_hours,))
+        return convert_rows_to_pilot_list(pilots)
     except sqlite3.Error as e:
-        print(f"Error retrieving drone and pilot info from the database: {e}")
-        return None
+        print(f"Error retrieving pilots from the database: {e}")
+        return []

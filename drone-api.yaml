@@ -8,6 +8,16 @@ servers:
   - url: http://localhost:5000/api/
     description: Local Development Server
 
+tags:
+  - name: Drones
+    description: Endpoints related to drone operations
+  - name: Pilots
+    description: Endpoints related to pilot operations
+  - name: Routes
+    description: Endpoints related to route operations
+  - name: Flight Plans
+    description: Endpoints related to flight plan operations
+
 paths:
   /drones:
     get:
@@ -53,7 +63,7 @@ paths:
           schema:
             type: string
           required: true
-          description: BUNO_ID of the drone to retrieve
+          description: BUNO_ID of the drone to retrieve (e.g., DR-001)
       responses:
         "200":
           description: A drone object
@@ -73,7 +83,7 @@ paths:
           schema:
             type: string
           required: true
-          description: BUNO_ID of the drone to update
+          description: BUNO_ID of the drone to update (e.g., DR-001)
       requestBody:
         required: true
         content:
@@ -99,13 +109,36 @@ paths:
           schema:
             type: string
           required: true
-          description: BUNO_ID of the drone to delete
+          description: BUNO_ID of the drone to delete (e.g., DR-001)
       responses:
         "200":
           description: Drone deleted successfully
         "404":
           description: Drone not found
-
+  /drones/{buno_id}/pilot_info:
+    get:
+      tags:
+        - Drones
+      summary: Retrieve drone and pilot information for a given BUNO_ID
+      parameters:
+        - in: path
+          name: buno_id
+          required: true
+          schema:
+            type: string
+          description: BUNO_ID of the drone (e.g., DR-001)
+      responses:
+        "200":
+          description: Drone and pilot information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  drone:
+                    $ref: "#/components/schemas/Drone"
+                  pilot:
+                    $ref: "#/components/schemas/Pilot"
   /pilots:
     get:
       tags:
@@ -150,7 +183,7 @@ paths:
           schema:
             type: string
           required: true
-          description: Pilot_ID of the pilot to retrieve
+          description: Pilot_ID of the pilot to retrieve (e.g., PILOT-001)
       responses:
         "200":
           description: A pilot object
@@ -170,7 +203,7 @@ paths:
           schema:
             type: string
           required: true
-          description: Pilot_ID of the pilot to update
+          description: Pilot_ID of the pilot to update (e.g., PILOT-001)
       requestBody:
         required: true
         content:
@@ -196,13 +229,37 @@ paths:
           schema:
             type: string
           required: true
-          description: Pilot_ID of the pilot to delete
+          description: Pilot_ID of the pilot to delete (e.g., PILOT-001)
       responses:
         "200":
           description: Pilot deleted successfully
         "404":
           description: Pilot not found
-
+  /pilots/min_hours/{min_pilot_hours}:
+    get:
+      tags:
+        - Pilots
+      summary: Retrieve pilots with at least the specified minimum pilot hours
+      parameters:
+        - in: path
+          name: min_pilot_hours
+          required: true
+          schema:
+            type: integer
+          description: Minimum pilot hours to filter the results (e.g., 500)
+      responses:
+        "200":
+          description: A list of pilots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pilot"
+        "404":
+          description: No pilots found with the specified criteria
+        "500":
+          description: Failed to retrieve pilots
   /routes:
     get:
       tags:
@@ -219,25 +276,6 @@ paths:
                   $ref: "#/components/schemas/Route"
         "500":
           description: Failed to fetch routes
-    post:
-      tags:
-        - Routes
-      summary: Create a new route
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Route"
-      responses:
-        "201":
-          description: Route created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Route"
-        "400":
-          description: Failed to add route
   /routes/{route_id}:
     get:
       tags:
@@ -249,6 +287,7 @@ paths:
           required: true
           schema:
             type: string
+          description: Route_ID of the route to retrieve (e.g., RT-001)
       responses:
         "200":
           description: A list of route objects
@@ -272,6 +311,7 @@ paths:
           required: true
           schema:
             type: string
+          description: Route_ID of the route to delete (e.g., RT-001)
       responses:
         "200":
           description: Route deleted
@@ -290,11 +330,13 @@ paths:
           required: true
           schema:
             type: string
+          description: Route_ID of the route (e.g., RT-001)
         - in: path
           name: waypoint_id
           required: true
           schema:
             type: string
+          description: Waypoint_ID of the waypoint (e.g., 1)
       responses:
         "200":
           description: A waypoint object
@@ -316,11 +358,13 @@ paths:
           required: true
           schema:
             type: string
+          description: Route_ID of the route (e.g., RT-001)
         - in: path
           name: waypoint_id
           required: true
           schema:
             type: string
+          description: Waypoint_ID of the waypoint (e.g., 1)
       requestBody:
         required: true
         content:
@@ -346,11 +390,13 @@ paths:
           required: true
           schema:
             type: string
+          description: Route_ID of the route (e.g., RT-001)
         - in: path
           name: waypoint_id
           required: true
           schema:
             type: string
+          description: Waypoint_ID of the waypoint (e.g., 1)
       requestBody:
         required: true
         content:
@@ -378,11 +424,13 @@ paths:
           required: true
           schema:
             type: string
+          description: Route_ID of the route (e.g., RT-001)
         - in: path
           name: waypoint_id
           required: true
           schema:
             type: string
+          description: Waypoint_ID of the waypoint (e.g., 1)
       responses:
         "200":
           description: Waypoint deleted
@@ -437,6 +485,7 @@ paths:
           required: true
           schema:
             type: string
+          description: Flight_Plan_ID of the flight plan to retrieve (e.g., FP-001)
       responses:
         "200":
           description: A flight plan object
@@ -458,6 +507,7 @@ paths:
           required: true
           schema:
             type: string
+          description: Flight_Plan_ID of the flight plan to update (e.g., FP-001)
       requestBody:
         required: true
         content:
@@ -485,6 +535,7 @@ paths:
           required: true
           schema:
             type: string
+          description: Flight_Plan_ID of the flight plan to delete (e.g., FP-001)
       responses:
         "200":
           description: Flight plan deleted successfully
@@ -492,6 +543,22 @@ paths:
           description: Flight plan not found
         "500":
           description: Failed to delete flight plan
+  /flight_plans/flight_plans_with_routes:
+    get:
+      tags:
+        - Flight Plans
+      summary: Retrieve flight plans with their associated routes
+      responses:
+        "200":
+          description: A list of flight plans with routes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FlightPlanWithRoutes"
+        "500":
+          description: Failed to fetch flight plans with routes
 
 components:
   schemas:
@@ -515,8 +582,8 @@ components:
         - Waypoint_ID
       example:
         Route_ID: "RT-001"
-        Latitude: 34.0522
-        Longitude: -118.2437
+        Latitude: 39.9526
+        Longitude: -75.1652
         Waypoint_ID: "1"
     FlightPlan:
       type: object
@@ -543,6 +610,45 @@ components:
         Pilot_ID: "PILOT-001"
         Route_ID: "RT-001"
         IsPlanned: true
+    FlightPlanWithRoutes:
+      type: object
+      properties:
+        Flight_Plan_ID:
+          type: string
+        BUNO_ID:
+          type: string
+        Pilot_ID:
+          type: string
+        Route_ID:
+          type: string
+        IsPlanned:
+          type: boolean
+        Latitude:
+          type: number
+          format: float
+        Longitude:
+          type: number
+          format: float
+        Waypoint_ID:
+          type: string
+      required:
+        - Flight_Plan_ID
+        - BUNO_ID
+        - Pilot_ID
+        - Route_ID
+        - IsPlanned
+        - Latitude
+        - Longitude
+        - Waypoint_ID
+      example:
+        Flight_Plan_ID: "FP-001"
+        BUNO_ID: "DR-001"
+        Pilot_ID: "PILOT-001"
+        Route_ID: "RT-001"
+        IsPlanned: true
+        Latitude: 39.9526
+        Longitude: -75.1652
+        Waypoint_ID: "1"
     Drone:
       type: object
       properties:
@@ -571,12 +677,12 @@ components:
         - Status_Code
       example:
         BUNO_ID: "DR-001"
-        Drone_Model: "Model X"
-        Manufacturer: "DroneCorp"
-        Purchase_Date: "2023-01-01"
-        Serial: "SN123456"
+        Drone_Model: "DJI Phantom 4 Pro"
+        Manufacturer: "DJI Innovations"
+        Purchase_Date: "2022-05-20"
+        Serial: "23456"
         Status: "Active"
-        Status_Code: "A1"
+        Status_Code: "OK"
     Pilot:
       type: object
       properties:
@@ -593,4 +699,36 @@ components:
       example:
         Pilot_ID: "PILOT-001"
         Pilot_Current: true
-        Pilot_Hours: 1500
+        Pilot_Hours: 1000
+    DronePilotInfo: # New schema for /drones/<buno_id>/pilot_info
+      type: object
+      properties:
+        drone:
+          $ref: "#/components/schemas/Drone"
+        pilot:
+          $ref: "#/components/schemas/Pilot"
+      example:
+        drone:
+          BUNO_ID: "DR-001"
+          Drone_Model: "DJI Phantom 4 Pro"
+          Manufacturer: "DJI Innovations"
+          Purchase_Date: "2022-05-20"
+          Serial: "23456"
+          Status: "Active"
+          Status_Code: "OK"
+        pilot:
+          Pilot_ID: "PILOT-001"
+          Pilot_Current: true
+          Pilot_Hours: 1000
+
+    PilotMinHours: # New schema for /pilots/min_hours/<int:min_pilot_hours>
+      type: array
+      items:
+        $ref: "#/components/schemas/Pilot"
+      example:
+        - Pilot_ID: "PILOT-001"
+          Pilot_Current: true
+          Pilot_Hours: 1000
+        - Pilot_ID: "PILOT-002"
+          Pilot_Current: false
+          Pilot_Hours: 1500
