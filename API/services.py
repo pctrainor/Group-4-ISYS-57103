@@ -618,6 +618,7 @@ def delete_flight_plan(flight_plan_id: str):
         print(f"Error deleting flight plan from the database: {e}")
         return False
 
+
 def get_flight_plans_with_routes():
     """
     Retrieves flight plans along with their associated route details.
