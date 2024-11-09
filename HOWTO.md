@@ -12,7 +12,7 @@ https://pctrainor.github.io/Group-4-ISYS-57103/
 
 ## Running the API
 
-This document assumes you have a running API server that conforms to the provided OpenAPI specification. You'll need to replace `http://localhost:5000/` in the server URL with the actual address of your API server.
+This document assumes you have a running API server that conforms to the provided OpenAPI specification. You'll need to replace `http://localhost:5000/api/drones` in the server URL with the actual address of your API server.
 
 ## Using the API
 
