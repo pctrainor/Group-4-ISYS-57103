@@ -359,7 +359,6 @@ def get_drone_pilot_info_api(buno_id):
         return jsonify({'error': f'Failed to retrieve drone and pilot info: {str(e)}'}), 500
     
     
-    
 @api_bp.route("/pilots/min_hours/<int:min_pilot_hours>", methods=["GET"])
 def get_pilots_with_min_hours_api(min_pilot_hours):
     """
