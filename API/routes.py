@@ -16,6 +16,18 @@ def test_connection():
         return jsonify({'error': f'Database connection failed: {str(e)}'}), 500
 
 
+@api_bp.route('/')  # Route for index.html
+def serve_index():
+    """Serve the index.html file."""
+    return send_from_directory('.', 'index.html')
+
+
+@api_bp.route('/drone-api.yaml')
+def serve_openapi_spec():
+    """Serve the OpenAPI specification file."""
+    return send_from_directory('.', 'drone-api.yaml')
+
+
 @api_bp.route("/drones", methods=["GET"])
 def get_drones():
     """
@@ -27,18 +39,6 @@ def get_drones():
         return jsonify(drone_list), 200
     except Exception as e:
         return jsonify({'error': f'Failed to fetch drones: {str(e)}'}), 500
-
-
-@api_bp.route('/drone-api.yaml')
-def serve_openapi_spec():
-    """Serve the OpenAPI specification file."""
-    return send_from_directory('.', 'drone-api.yaml')
-
-
-@api_bp.route('/')  # Route for index.html
-def serve_index():
-    """Serve the index.html file."""
-    return send_from_directory('.', 'index.html')
 
 
 @api_bp.route("/drones/<buno_id>", methods=["GET"])  # Changed drone_id to buno_id
@@ -103,33 +103,13 @@ def delete_drone(buno_id):  # Changed drone_id to buno_id
             return jsonify({'error': 'Drone not found'}), 404
     except Exception as e:
         return jsonify({'error': f'Failed to delete drone: {str(e)}'}), 500
-    
-@api_bp.route("/drones/<buno_id>/pilot_info", methods=["GET"])
-def get_drone_pilot_info_api(buno_id):
-    """
-    API endpoint to retrieve drone and pilot information for the given BUNO_ID.
-    """
-    try:
-        # Assuming 'services' is defined elsewhere and has the function
-        result = services.get_drone_pilot_info(buno_id)
- 
-        if result:
-            drone_info, pilot_info = result 
-            return jsonify({
-                "drone": drone_info,
-                "pilot": pilot_info
-            }), 200
-        else:
-            return jsonify({"error": f"Drone with BUNO_ID '{buno_id}' not found"}), 404
- 
-    except Exception as e:
-        return jsonify({'error': f'Failed to retrieve drone and pilot info: {str(e)}'}), 500
 
 
 @api_bp.route("/routes", methods=["GET"])
 def get_routes():
     routes = services.get_all_routes()
     return jsonify([route.__dict__ for route in routes])
+
 
 @api_bp.route("/routes/<route_id>", methods=["GET"])
 def get_route_by_id_handler(route_id):
@@ -357,29 +337,41 @@ def delete_pilot(pilot_id):
     except Exception as e:
         return jsonify({'error': f'Failed to delete pilot: {str(e)}'}), 500
     
-@api_bp.route("/drones/pilot_info", methods=["GET"])
-def get_drone_pilot_info_with_filter_api():
+    
+@api_bp.route("/drones/<buno_id>/pilot_info", methods=["GET"])
+def get_drone_pilot_info_api(buno_id):
     """
-    API endpoint to retrieve drone and pilot information for drones 
-    where the pilot has at least the specified minimum pilot hours.
+    API endpoint to retrieve drone and pilot information for the given BUNO_ID.
     """
     try:
-        min_pilot_hours = int(request.args.get('min_pilot_hours', 0)) 
-        # Assuming 'services' is defined elsewhere and has the function
-        result = services.get_drone_pilot_info_with_filter(min_pilot_hours)  
+        result = services.get_drone_pilot_info(buno_id)
+
         if result:
-            # Convert list of tuples to list of dictionaries for JSON response
-            formatted_result = []
-            for drone_info, pilot_info in result:
-                formatted_result.append({
-                    "drone": drone_info,
-                    "pilot": pilot_info
-                })
-            return jsonify(formatted_result), 200
+            drone_info, pilot_info = result
+            return jsonify({
+                "drone": drone_info,
+                "pilot": pilot_info
+            }), 200
         else:
-            return jsonify({"error": "No drones found with the specified criteria"}), 404
- 
-    except ValueError:
-        return jsonify({"error": "Invalid 'min_pilot_hours' value"}), 400
+            return jsonify({"error": f"Drone with BUNO_ID '{buno_id}' not found"}), 404
+
     except Exception as e:
         return jsonify({'error': f'Failed to retrieve drone and pilot info: {str(e)}'}), 500
+    
+    
+    
+@api_bp.route("/pilots/min_hours/<int:min_pilot_hours>", methods=["GET"])
+def get_pilots_with_min_hours_api(min_pilot_hours):
+    """
+    API endpoint to retrieve pilots with at least the specified minimum pilot hours.
+    """
+    try:
+        pilots = services.get_pilots_with_min_hours(min_pilot_hours)
+        if pilots:
+            pilot_list = [pilot.__dict__ for pilot in pilots]
+            return jsonify(pilot_list), 200
+        else:
+            return jsonify({"error": "No pilots found with the specified criteria"}), 404
+
+    except Exception as e:
+        return jsonify({'error': f'Failed to retrieve pilots: {str(e)}'}), 500
