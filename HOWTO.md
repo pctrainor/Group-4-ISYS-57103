@@ -12,7 +12,7 @@ https://pctrainor.github.io/Group-4-ISYS-57103/
 
 ## Running the API
 
-This document assumes you have a running API server that conforms to the provided OpenAPI specification. You'll need to replace `http://localhost:5000/api/drones` in the server URL with the actual address of your API server.
+This document assumes you have a running API server that conforms to the provided OpenAPI specification. You'll need to replace `http://localhost:5000` in the server URL with the actual address of your API server.
 
 ## Using the API
 
@@ -21,7 +21,7 @@ You can interact with the API using any HTTP client (e.g., curl, Postman, or a w
 Here's an example of how to retrieve a list of all drones using the `/drones` endpoint:
 
 - **`/drones` (GET):** Retrieve a list of all drones.
-  - **Example Request:** `curl http://localhost:5000/drones`
+  - **Example Request:** `curl [http://localhost:5000/api/drones](http://localhost:5000/api/drones)`
   - **Example Response:**
 
 ```json
