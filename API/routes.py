@@ -359,13 +359,16 @@ def get_drone_pilot_info_api(buno_id):
         return jsonify({'error': f'Failed to retrieve drone and pilot info: {str(e)}'}), 500
     
     
-@api_bp.route("/pilots/min_hours/<int:min_pilot_hours>", methods=["GET"])
-def get_pilots_with_min_hours_api(min_pilot_hours):
+@api_bp.route("/pilots/hours", methods=["GET"])
+def get_pilots_with_hour_range_api():
     """
-    API endpoint to retrieve pilots with at least the specified minimum pilot hours.
+    API endpoint to retrieve pilots with pilot hours within the specified range.
     """
     try:
-        pilots = services.get_pilots_with_min_hours(min_pilot_hours)
+        min_hours = request.args.get('min', type=int)
+        max_hours = request.args.get('max', type=int)
+
+        pilots = services.get_pilots_with_hour_range(min_hours, max_hours)
         if pilots:
             pilot_list = [pilot.__dict__ for pilot in pilots]
             return jsonify(pilot_list), 200
