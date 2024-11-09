@@ -235,18 +235,24 @@ paths:
           description: Pilot deleted successfully
         "404":
           description: Pilot not found
-  /pilots/min_hours/{min_pilot_hours}:
+  /pilots/hours:
     get:
       tags:
         - Pilots
-      summary: Retrieve pilots with at least the specified minimum pilot hours
+      summary: Retrieve pilots with pilot hours within the specified range
       parameters:
-        - in: path
-          name: min_pilot_hours
-          required: true
+        - in: query
+          name: min
+          required: false
           schema:
             type: integer
           description: Minimum pilot hours to filter the results (e.g., 500)
+        - in: query
+          name: max
+          required: false
+          schema:
+            type: integer
+          description: Maximum pilot hours to filter the results (e.g., 1500)
       responses:
         "200":
           description: A list of pilots
