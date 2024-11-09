@@ -764,19 +764,34 @@ def delete_pilot(pilot_id: int):
         return False
     
     
-def get_pilots_with_min_hours(min_pilot_hours: int) -> List[Pilot]:
+def get_pilots_with_hour_range(min_hours: int = None, max_hours: int = None) -> List[Pilot]:
     """
-    Retrieves pilots with at least the specified minimum pilot hours.
+    Retrieves pilots with pilot hours within the specified range.
 
     Args:
-        min_pilot_hours (int): The minimum pilot hours required.
+        min_hours (int, optional): The minimum pilot hours required. Defaults to None.
+        max_hours (int, optional): The maximum pilot hours allowed. Defaults to None.
 
     Returns:
-        List[Pilot]: A list of Pilot objects that meet the minimum pilot hours requirement.
+        List[Pilot]: A list of Pilot objects that fall within the specified hour range.
     """
-    query = "SELECT * FROM pilots WHERE Pilot_Hours >= ?"
+    query = "SELECT * FROM pilots"
+    params = []
+    conditions = []
+
+    if min_hours is not None:
+        conditions.append("Pilot_Hours >= ?")
+        params.append(min_hours)
+
+    if max_hours is not None:
+        conditions.append("Pilot_Hours <= ?")
+        params.append(max_hours)
+
+    if conditions:
+        query += " WHERE " + " AND ".join(conditions)
+
     try:
-        pilots = run_query(query, (min_pilot_hours,))
+        pilots = run_query(query, tuple(params))
         return convert_rows_to_pilot_list(pilots)
     except sqlite3.Error as e:
         print(f"Error retrieving pilots from the database: {e}")
