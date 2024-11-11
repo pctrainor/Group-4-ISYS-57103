@@ -4,6 +4,12 @@ from flasgger import Swagger # Only required if you want to use Swagger UI
 import yaml
 from API.routes import api_bp
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+google_maps_api_key = os.getenv('GOOGLE_MAPS_API_KEY')
+
 
 def create_app():
     app = Flask(__name__, static_folder='static')
@@ -13,8 +19,7 @@ def create_app():
     if Path.exists(Path("drone-api.yaml")):
         with open("drone-api.yaml", "r") as file:
             openapi_spec = yaml.safe_load(file)
-
-        swagger = Swagger(app, template=openapi_spec)
+            Swagger(app, template=openapi_spec)
 
     # Register Blueprints
     app.register_blueprint(api_bp, url_prefix="/api")
