@@ -5,42 +5,60 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Roboto', sans-serif;
       margin: 0;
       padding: 0;
       background-color: #f4f4f4; 
       color: #333; 
     }
-    h1 {
-      text-align: center;
-      color: #0071ce; 
+    header {
+      background-color: #0071ce;
+      color: #fff;
+      padding: 10px 0;
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+    }
+    header img {
+      height: 50px;
+      margin-right: 10px; 
+    }
+    header h1 { 
+      font-size: 24px;
+      margin: 0; 
     }
     #map {
-      height: 300px;
+      height: 400px;
       width: 100%;
       margin-bottom: 20px;
     }
     #trackForm {
       display: flex;
+      flex-direction: column;
       align-items: center; 
       justify-content: center; 
-      margin: 20px;
+      margin: 20px auto;
       padding: 20px;
       background-color: #fff; 
       border: 2px solid #ffc220; 
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+      max-width: 500px;
     }
     label, input, button {
       margin: 10px; 
+      width: 100%;
     }
     label {
       color: #0071ce; 
+      text-align: left;
+      width: auto;
     }
     input {
       padding: 10px;
       border: 1px solid #ccc; 
       border-radius: 4px; 
+      width: calc(100% - 22px);
     }
     button {
       padding: 10px;
@@ -49,21 +67,47 @@
       border: none;
       border-radius: 4px; 
       cursor: pointer;
+      width: auto;
     }
     button:hover {
       background-color: #005bb5; 
     }
+    #waypointData {
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fff; 
+      border: 2px solid #ffc220; 
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+      max-width: 500px;
+      white-space: pre-wrap;
+    }
+    footer {
+      background-color: #0071ce;
+      color: #fff;
+      text-align: center;
+      padding: 10px 0;
+      position: fixed;
+      width: 100%;
+      bottom: 0;
+    }
   </style>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <h1>Drone Delivery Tracker</h1>
+  <header>
+    <h1>Drone Delivery Tracker</h1>
+  </header>
   <div id="map"></div>
   <form id="trackForm" method="post">
     <label for="route_id">Route ID:</label> 
-    <input type="text" id="route_id" name="route_id" value="RT-001"> 
+    <input type="text" id="route_id" name="route_id" value="RT-111"> 
     <button type="submit">Track Order</button>
   </form>
   <div id="waypointData"></div>
+  <footer>
+    &copy; 2024 Walmart Drone Delivery Tracker
+  </footer>
   <script>
     let map;
 
@@ -96,13 +140,6 @@
         .then(data => {
           // Display the JSON data on the page
           waypointDataDiv.innerText = JSON.stringify(data, null, 2); 
-          
-          // Create a marker
-          const marker1 = new google.maps.Marker({
-            position: { lat: 39.9526, lng: -94.1652 }, // Marker position (latitude, longitude)
-            map: map, // Assign the marker to the map
-            title: "Waypoint 1", // Optional title for the marker
-        });
 
           // Add marker to the map
           const marker = new google.maps.Marker({
@@ -118,7 +155,7 @@
         });
     });
   </script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script> 
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB46_reoDmeqg7ObcclI-y-wsyYWIPcZT0&callback=initMap" async defer></script> 
   <script>
     window.initMap = initMap;
   </script>
