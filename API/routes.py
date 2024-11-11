@@ -19,7 +19,13 @@ def test_connection():
 @api_bp.route('/')  # Route for index.html
 def serve_index():
     """Serve the index.html file."""
-    return send_from_directory('.', 'index.html')
+    return send_from_directory('static', 'index.html')
+
+
+@api_bp.route('/swagger')  # Route for index.html
+def serve_swagger():
+    """Serve the swagger.html file."""
+    return send_from_directory('static', 'swagger.html')
 
 
 @api_bp.route('/drone-api.yaml')

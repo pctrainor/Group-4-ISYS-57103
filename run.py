@@ -6,7 +6,7 @@ from API.routes import api_bp
 from pathlib import Path
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='static')
     CORS(app)
 
     # If you have provided an openapi.yaml file in the docs folder, load it
