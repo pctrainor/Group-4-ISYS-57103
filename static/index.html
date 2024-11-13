@@ -82,6 +82,9 @@
       max-width: 500px;
       white-space: pre-wrap;
     }
+    #droneLocations {
+      margin: 20px;
+    }
     footer {
       background-color: #0071ce;
       color: #fff;
@@ -91,25 +94,45 @@
       width: 100%;
       bottom: 0;
     }
+    .loading-icon {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #0071ce;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      display: none;
+      margin: 10px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <header>
-    <h1>Drone Delivery Tracker</h1>
+    <h1>Walmart Drone Delivery Tracker</h1>
   </header>
   <div id="map"></div>
   <form id="trackForm" method="post">
     <label for="route_id">Route ID:</label> 
     <input type="text" id="route_id" name="route_id" value="RT-111"> 
     <button type="submit">Track Order</button>
+    <div class="loading-icon" id="loadingIcon"></div>
   </form>
   <div id="waypointData"></div>
+  <div id="droneLocations">
+    <h2>Drone Locations</h2>
+    <ul id="locationList"></ul>
+  </div>
   <footer>
     &copy; 2024 Walmart Drone Delivery Tracker
   </footer>
   <script>
     let map;
+    let markers = [];
 
     function initMap() {
       var mapOptions = {
@@ -121,36 +144,50 @@
 
     const form = document.getElementById('trackForm');
     const waypointDataDiv = document.getElementById('waypointData');
+    const loadingIcon = document.getElementById('loadingIcon');
 
     form.addEventListener('submit', (event) => {
       event.preventDefault(); 
 
       const routeId = document.getElementById('route_id').value;
 
+      // Show loading icon
+      loadingIcon.style.display = 'block';
+
       // Construct the API URL
-      const apiUrl = `http://127.0.0.1:5000/api/routes/${routeId}`;
+      const apiUrl = `http://localhost:5000/api/drones/position_by_route/${routeId}`;
 
-      fetch(apiUrl)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.json(); 
-        })
-        .then(data => {
-          // Display the JSON data on the page
-          waypointDataDiv.innerText = JSON.stringify(data, null, 2); 
+      // Simulate a delay
+      setTimeout(() => {
+        fetch(apiUrl)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json(); 
+          })
+          .then(data => {
+            // Hide loading icon
+            loadingIcon.style.display = 'none';
 
-          // Iterate through each waypoint and add marker to the map
-          data.forEach((waypoint, index) => {
+            // Clear previous markers
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+            waypointDataDiv.innerText = '';
+
+            // Display the JSON data on the page
+            waypointDataDiv.innerText = `Altitude: ${data.current_altitude}, Latitude: ${data.current_latitude}, Longitude: ${data.current_longitude}\n`;
+
+            // Add marker to the map
             const marker = new google.maps.Marker({
-              position: { lat: waypoint.Latitude, lng: waypoint.Longitude },
+              position: { lat: data.current_latitude, lng: data.current_longitude },
               map: map,
-              title: waypoint.Waypoint_ID,
+              title: `Altitude: ${data.current_altitude}`
             });
 
+            // Add info window to marker
             const infoWindow = new google.maps.InfoWindow({
-              content: `Waypoint ID: ${waypoint.Waypoint_ID}<br>Latitude: ${waypoint.Latitude}<br>Longitude: ${waypoint.Longitude}`
+              content: `<div>Altitude: ${data.current_altitude}<br>Latitude: ${data.current_latitude}<br>Longitude: ${data.current_longitude}</div>`
             });
 
             marker.addListener('click', () => {
@@ -158,21 +195,52 @@
             });
 
             marker.setMap(map);
-
-            // Zoom in on the first waypoint
-            if (index === 0) {
-              map.setCenter(marker.getPosition());
-              map.setZoom(13);
-            }
+            markers.push(marker);
+          })
+          .catch(error => {
+            console.error('Error fetching data:', error);
+            waypointDataDiv.innerText = 'Error fetching data. Please try again later.';
+            // Hide loading icon
+            loadingIcon.style.display = 'none';
           });
-        })
-        .catch(error => {
-          console.error('Error fetching data:', error);
-          waypointDataDiv.innerText = 'Error fetching data. Please try again later.';
+      }, 250); // 2 seconds delay
+    });
+
+    async function fetchDroneLocations() {
+      try {
+        const response = await fetch('/api/drones/locations');
+        const locations = await response.json();
+        const locationList = document.getElementById('locationList');
+        locationList.innerHTML = '';
+        locations.forEach(location => {
+          const listItem = document.createElement('li');
+          listItem.textContent = `Altitude: ${location.current_altitude}, Latitude: ${location.current_latitude}, Longitude: ${location.current_longitude}`;
+          locationList.appendChild(listItem);
+
+          // Add marker to the map for each drone location
+          const marker = new google.maps.Marker({
+            position: { lat: location.current_latitude, lng: location.current_longitude },
+            map: map,
+            title: `Altitude: ${location.current_altitude}`
+          });
+          marker.setMap(map);
         });
+      } catch (error) {
+        console.error('Error fetching drone locations:', error);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchDroneLocations();
+      setInterval(() => {
+      // Clear previous markers
+      markers.forEach(marker => marker.setMap(null));
+      markers = [];
+      fetchDroneLocations();
+      }, 5000); // Fetch drone locations every 5 seconds
     });
   </script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=GOOGLE_MAPS_API_KEY&callback=initMap" async defer></script> 
+  <script src="https://maps.googleapis.com/maps/api/js?key=APIKEY&callback=initMap" async defer></script> 
   <script>
     window.initMap = initMap;
   </script>

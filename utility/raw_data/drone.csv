@@ -1,21 +1,21 @@
-BUNO_ID,Drone_Model,Manufacturer,Purchase_Date,Serial,Status,Status_Code
-DR-001,DJI Phantom 4 Pro,"DJI Innovations",2022-05-20,23456,"Active","OK"
-DR-002,DJI Phantom 4 Pro,"DJI Innovations",2022-05-20,23456,"Active","OK"
-DR-003,DJI Phantom 4 Pro,"DJI Innovations",2022-05-20,23456,"Active","OK"
-DR-004,DJI Phantom 4 Pro,"DJI Innovations",2022-05-20,23456,"Active","OK"
-DR-005,DJI Phantom 4 Pro,"DJI Innovations",2022-05-20,23456,"Maintenance","MAINT"
-DR-006,DJI Phantom 4 Pro,"DJI Innovations",2022-05-20,23456,"Maintenance","MAINT"
-DR-007,DJI Phantom 4 Pro,"DJI Innovations",2022-05-20,23456,"Maintenance","MAINT"
-DR-008,DJI Phantom 4 Pro,"DJI Innovations",2022-05-20,23456,"Maintenance","MAINT"
-DR-009,DJI Phantom 4 Pro,"DJI Innovations",2022-05-20,23456,"Maintenance","MAINT"
-DR-010,DJI Phantom 4 Pro,"DJI Innovations",2022-05-20,23456,"Maintenance","MAINT"
-DR-011,DJI Mavic Air 2,"DJI Innovations",2023-10-15,12345,"Maintenance","MAINT"
-DR-012,DJI Mavic Air 2,"DJI Innovations",2023-10-15,12345,"Active","OK"
-DR-013,DJI Mavic Air 2,"DJI Innovations",2023-10-15,12345,"Active","OK"
-DR-014,DJI Mavic Air 2,"DJI Innovations",2023-10-15,12345,"Active","OK"
-DR-015,DJI Mavic Air 2,"DJI Innovations",2023-10-15,12345,"Active","OK"
-DR-016,DJI Mavic Air 2,"DJI Innovations",2023-12-15,12345,"Active","OK"
-DR-017,DJI Mavic Air 2,"DJI Innovations",2023-12-15,12345,"Active","OK"
-DR-018,DJI Mavic Air 2,"DJI Innovations",2023-12-15,12345,"Active","OK"
-DR-019,DJI Mavic Air 2,"DJI Innovations",2023-12-15,12345,"Active","OK"
-DR-020,DJI Mavic Air 2,"DJI Innovations",2023-12-15,12345,"Active","OK"
+BUNO_ID,Drone_Model,Manufacturer,Purchase_Date,Serial,Status,Status_Code,current_altitude,current_latitude,current_longitude
+DR-001,DJI Phantom 4 Pro,"DJI Innovations",2022-05-20,23456,"Active","OK",0 ft,36.369432,-94.2777
+DR-002,DJI Phantom 4 Pro,"DJI Innovations",2022-05-20,23456,"Active","OK",0 ft,36.369432,-94.224439
+DR-003,DJI Phantom 4 Pro,"DJI Innovations",2022-05-20,23456,"Active","OK",0 ft,36.369432,-94.224439
+DR-004,DJI Phantom 4 Pro,"DJI Innovations",2022-05-20,23456,"Active","OK",0 ft,36.369432,-94.224439
+DR-005,DJI Phantom 4 Pro,"DJI Innovations",2022-05-20,23456,"Maintenance","MAINT",0 ft,36.369432,-94.224439
+DR-006,DJI Phantom 4 Pro,"DJI Innovations",2022-05-20,23456,"Maintenance","MAINT",0 ft,36.369432,-94.224439
+DR-007,DJI Phantom 4 Pro,"DJI Innovations",2022-05-20,23456,"Maintenance","MAINT",0 ft,36.369432,-94.224439
+DR-008,DJI Phantom 4 Pro,"DJI Innovations",2022-05-20,23456,"Maintenance","MAINT",0 ft,36.369432,-94.224439
+DR-009,DJI Phantom 4 Pro,"DJI Innovations",2022-05-20,23456,"Maintenance","MAINT",0 ft,36.369432,-94.224439
+DR-010,DJI Phantom 4 Pro,"DJI Innovations",2022-05-20,23456,"Maintenance","MAINT",0 ft,36.369432,-94.224439
+DR-011,DJI Mavic Air 2,"DJI Innovations",2023-10-15,12345,"Maintenance","MAINT",0 ft,36.369432,-94.224439
+DR-012,DJI Mavic Air 2,"DJI Innovations",2023-10-15,12345,"Active","OK",0 ft,36.369432,-94.224439
+DR-013,DJI Mavic Air 2,"DJI Innovations",2023-10-15,12345,"Active","OK",0 ft,36.369432,-94.224439
+DR-014,DJI Mavic Air 2,"DJI Innovations",2023-10-15,12345,"Active","OK",0 ft,36.369432,-94.224439
+DR-015,DJI Mavic Air 2,"DJI Innovations",2023-10-15,12345,"Active","OK",0 ft,36.369432,-94.224439
+DR-016,DJI Mavic Air 2,"DJI Innovations",2023-12-15,12345,"Active","OK",0 ft,36.369432,-94.224439
+DR-017,DJI Mavic Air 2,"DJI Innovations",2023-12-15,12345,"Active","OK",0 ft,36.369432,-94.224439
+DR-018,DJI Mavic Air 2,"DJI Innovations",2023-12-15,12345,"Active","OK",0 ft,36.369432,-94.224439
+DR-019,DJI Mavic Air 2,"DJI Innovations",2023-12-15,12345,"Active","OK",0 ft,36.369432,-94.224439
+DR-020,DJI Mavic Air 2,"DJI Innovations",2023-12-15,12345,"Active","OK",0 ft,36.369432,-94.224439

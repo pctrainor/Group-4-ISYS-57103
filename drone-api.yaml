@@ -115,6 +115,80 @@ paths:
           description: Drone deleted successfully
         "404":
           description: Drone not found
+  /drones/{buno_id}/location:
+    put:
+      tags:
+        - Drones
+      summary: Update the latitude, longitude, and altitude for a given drone
+      parameters:
+        - in: path
+          name: buno_id
+          required: true
+          schema:
+            type: string
+          description: BUNO_ID of the drone (e.g., DR-001)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                latitude:
+                  type: number
+                  format: float
+                  example: 36.369432
+                longitude:
+                  type: number
+                  format: float
+                  example: -94.224439
+                altitude:
+                  type: string
+                  example: "100 ft"
+      responses:
+        "200":
+          description: Drone location updated successfully
+        "400":
+          description: Latitude, longitude, and altitude are required
+        "404":
+          description: Drone not found
+        "500":
+          description: Failed to update drone location
+  /drones/position_by_route/{route_id}:
+    get:
+      tags:
+        - Drones
+      summary: Retrieve the current positional data of the drone associated with a given route
+      parameters:
+        - in: path
+          name: route_id
+          required: true
+          schema:
+            type: string
+          description: Route_ID of the route (e.g., RT-001)
+      responses:
+        "200":
+          description: Drone positional data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current_altitude:
+                    type: string
+                    example: "100 ft"
+                  current_latitude:
+                    type: number
+                    format: float
+                    example: 36.369432
+                  current_longitude:
+                    type: number
+                    format: float
+                    example: -94.224439
+        "404":
+          description: No drone found for the given route
+        "500":
+          description: Failed to retrieve drone position
   /drones/{buno_id}/pilot_info:
     get:
       tags:

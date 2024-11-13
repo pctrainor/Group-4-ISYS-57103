@@ -222,6 +222,90 @@ def update_drone(buno_id: int, drone_data: dict) -> Drone:
         print(f"Error updating drone in the database: {e}")
         return None
 
+def get_drone_locations():
+    """
+    Retrieves the current altitude, latitude, and longitude for all drones.
+
+    Returns:
+        list[dict]: A list of dictionaries, where each dictionary contains the current altitude, latitude, and longitude.
+    """
+    query = """
+    SELECT current_altitude, current_latitude, current_longitude
+    FROM drones
+    """
+    try:
+        locations = run_query(query)
+        result = []
+        for row in locations:
+            location_info = {
+                "current_altitude": row["current_altitude"],
+                "current_latitude": row["current_latitude"],
+                "current_longitude": row["current_longitude"]
+            }
+            result.append(location_info)
+        return result
+    except sqlite3.Error as e:
+        print(f"Error retrieving drone locations from the database: {e}")
+        return None
+
+def update_drone_location(buno_id: str, latitude: float, longitude: float, altitude: str) -> bool:
+    """
+    Updates the latitude, longitude, and altitude for a given drone.
+
+    Args:
+        buno_id (str): The BUNO_ID of the drone.
+        latitude (float): The new latitude.
+        longitude (float): The new longitude.
+        altitude (str): The new altitude.
+
+    Returns:
+        bool: True if the update was successful, False otherwise.
+    """
+    query = "UPDATE drones SET current_latitude = ?, current_longitude = ?, current_altitude = ? WHERE BUNO_ID = ?"
+    params = (latitude, longitude, altitude, buno_id)
+    try:
+        result = run_query(query, params)
+        return result.rowcount > 0
+    except sqlite3.Error as e:
+        print(f"Error updating drone location in the database: {e}")
+        return False
+
+def get_drone_position_by_route(route_id: str):
+    """
+    Retrieves the current positional data (altitude, latitude, longitude) of the drone associated with a given route.
+
+    Args:
+        route_id (str): The Route_ID of the route.
+
+    Returns:
+        dict: A dictionary containing the current positional data of the drone, or None if no data is found.
+    """
+    query = """
+    SELECT d.current_altitude, d.current_latitude, d.current_longitude
+    FROM drones d
+    INNER JOIN flight_plans fp ON d.BUNO_ID = fp.BUNO_ID
+    WHERE fp.Route_ID = ?
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(query, (route_id,))
+        row = cursor.fetchone()
+        conn.close()
+
+        if row:
+            return {
+                "current_altitude": row["current_altitude"],
+                "current_latitude": row["current_latitude"],
+                "current_longitude": row["current_longitude"]
+            }
+        else:
+            return None
+
+    except sqlite3.Error as e:
+        print(f"Error retrieving drone position from the database: {e}")
+        return None
+
 
 def delete_drone(buno_id):
     """

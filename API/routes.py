@@ -96,6 +96,45 @@ def update_drone(buno_id):  # Changed drone_id to buno_id
         return jsonify({'error': f'Failed to update drone: {str(e)}'}), 500
 
 
+@api_bp.route("/drones/locations", methods=["GET"])
+def get_drone_locations_api():
+    """
+    API endpoint to retrieve the current altitude, latitude, and longitude for all drones.
+    """
+    try:
+        locations = services.get_drone_locations()
+        if locations:
+            return jsonify(locations), 200
+        else:
+            return jsonify({"error": "Failed to retrieve drone locations"}), 500
+    except Exception as e:
+        return jsonify({'error': f'Failed to retrieve drone locations: {str(e)}'}), 500
+
+
+@api_bp.route("/drones/<buno_id>/location", methods=["PUT", "POST"])
+def update_drone_location_api(buno_id):
+    """
+    API endpoint to update the latitude, longitude, and altitude for a given drone.
+    """
+    try:
+        data = request.get_json()
+        latitude = data.get('latitude')
+        longitude = data.get('longitude')
+        altitude = data.get('altitude')
+
+        if latitude is None or longitude is None or altitude is None:
+            return jsonify({'error': 'Latitude, longitude, and altitude are required'}), 400
+
+        result = services.update_drone_location(buno_id, latitude, longitude, altitude)
+        if result:
+            return jsonify({'message': 'Drone location updated successfully'}), 200
+        else:
+            return jsonify({'error': 'Drone not found'}), 404
+
+    except Exception as e:
+        return jsonify({'error': f'Failed to update drone location: {str(e)}'}), 500
+
+
 @api_bp.route("/drones/<buno_id>", methods=["DELETE"])  # Changed drone_id to buno_id
 def delete_drone(buno_id):  # Changed drone_id to buno_id
     """
