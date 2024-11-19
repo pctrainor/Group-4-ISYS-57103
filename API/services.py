@@ -537,10 +537,10 @@ def add_flight_plan(flight_plan_data):
         cursor = conn.cursor()
 
         cursor.execute(
-            "INSERT INTO flight_plans (Flight_Plan_ID, BUNO_ID, Pilot_ID, Route_ID, IsPlanned) VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO flight_plans (Flight_Plan_ID, BUNO_ID, Pilot_ID, Route_ID, IsPlanned, IsComplete) VALUES (?, ?, ?, ?, ?, ?)",
             (flight_plan_data['Flight_Plan_ID'], flight_plan_data['BUNO_ID'],
              flight_plan_data['Pilot_ID'], flight_plan_data['Route_ID'],
-             flight_plan_data['IsPlanned', flight_plan_data['IsComplete']]))
+             flight_plan_data['IsPlanned'], flight_plan_data['IsComplete']))
         conn.commit()
         conn.close()
 
@@ -573,10 +573,10 @@ def update_flight_plan(flight_plan_id: str, flight_plan_data):
         cursor = conn.cursor()
 
         cursor.execute(
-            "UPDATE flight_plans SET BUNO_ID = ?, Pilot_ID = ?, Route_ID = ?, IsPlanned = ? WHERE Flight_Plan_ID = ?",
+            "UPDATE flight_plans SET BUNO_ID = ?, Pilot_ID = ?, Route_ID = ?, IsPlanned = ?, IsComplete = ? WHERE Flight_Plan_ID = ?",
             (flight_plan_data['BUNO_ID'], flight_plan_data['Pilot_ID'],
              flight_plan_data['Route_ID'], flight_plan_data['IsPlanned'],
-             flight_plan_id), flight_plan_data['IsComplete'])
+             flight_plan_data['IsComplete'], flight_plan_id))
         conn.commit()
         conn.close()
 

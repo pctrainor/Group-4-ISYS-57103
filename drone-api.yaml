@@ -604,18 +604,22 @@ components:
           type: string
         IsPlanned:
           type: boolean
+        IsComplete:
+          type: boolean
       required:
         - Flight_Plan_ID
         - BUNO_ID
         - Pilot_ID
         - Route_ID
         - IsPlanned
+        - IsComplete
       example:
         Flight_Plan_ID: "FP-001"
         BUNO_ID: "DR-001"
         Pilot_ID: "PILOT-001"
         Route_ID: "RT-001"
         IsPlanned: true
+        IsComplete: true
     FlightPlanWithRoutes:
       type: object
       properties:
@@ -628,6 +632,8 @@ components:
         Route_ID:
           type: string
         IsPlanned:
+          type: boolean
+        IsComplete:
           type: boolean
         Latitude:
           type: number
@@ -643,6 +649,7 @@ components:
         - Pilot_ID
         - Route_ID
         - IsPlanned
+        - IsComplete
         - Latitude
         - Longitude
         - Waypoint_ID
@@ -652,6 +659,7 @@ components:
         Pilot_ID: "PILOT-001"
         Route_ID: "RT-001"
         IsPlanned: true
+        IsComplete: true
         Latitude: 39.9526
         Longitude: -75.1652
         Waypoint_ID: "1"
