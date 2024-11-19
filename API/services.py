@@ -488,7 +488,8 @@ def convert_rows_to_flight_plan_list(flight_plans):
                                   BUNO_ID=flight_plan["BUNO_ID"],
                                   Pilot_ID=flight_plan["Pilot_ID"],
                                   Route_ID=flight_plan["Route_ID"],
-                                  IsPlanned=flight_plan["IsPlanned"])
+                                  IsPlanned=flight_plan["IsPlanned"],
+                                  IsComplete=flight_plan["IsComplete"])
         all_flight_plans.append(flight_plan)
     return all_flight_plans
 
@@ -539,7 +540,7 @@ def add_flight_plan(flight_plan_data):
             "INSERT INTO flight_plans (Flight_Plan_ID, BUNO_ID, Pilot_ID, Route_ID, IsPlanned) VALUES (?, ?, ?, ?, ?)",
             (flight_plan_data['Flight_Plan_ID'], flight_plan_data['BUNO_ID'],
              flight_plan_data['Pilot_ID'], flight_plan_data['Route_ID'],
-             flight_plan_data['IsPlanned']))
+             flight_plan_data['IsPlanned', flight_plan_data['IsComplete']]))
         conn.commit()
         conn.close()
 
@@ -547,7 +548,8 @@ def add_flight_plan(flight_plan_data):
                                       BUNO_ID=flight_plan_data['BUNO_ID'],
                                       Pilot_ID=flight_plan_data['Pilot_ID'],
                                       Route_ID=flight_plan_data['Route_ID'],
-                                      IsPlanned=flight_plan_data['IsPlanned'])
+                                      IsPlanned=flight_plan_data['IsPlanned'],
+                                      IsComplete=flight_plan_data['IsComplete'])
         return new_flight_plan
 
     except sqlite3.Error as e:
@@ -574,7 +576,7 @@ def update_flight_plan(flight_plan_id: str, flight_plan_data):
             "UPDATE flight_plans SET BUNO_ID = ?, Pilot_ID = ?, Route_ID = ?, IsPlanned = ? WHERE Flight_Plan_ID = ?",
             (flight_plan_data['BUNO_ID'], flight_plan_data['Pilot_ID'],
              flight_plan_data['Route_ID'], flight_plan_data['IsPlanned'],
-             flight_plan_id))
+             flight_plan_id), flight_plan_data['IsComplete'])
         conn.commit()
         conn.close()
 
@@ -582,7 +584,7 @@ def update_flight_plan(flight_plan_id: str, flight_plan_data):
                                           BUNO_ID=flight_plan_data['BUNO_ID'],
                                           Pilot_ID=flight_plan_data['Pilot_ID'],
                                           Route_ID=flight_plan_data['Route_ID'],
-                                          IsPlanned=flight_plan_data['IsPlanned'])
+                                          IsPlanned=flight_plan_data['IsPlanned'], isComplete=flight_plan_data['IsComplete'])
         return updated_flight_plan
 
     except sqlite3.Error as e:
@@ -628,7 +630,7 @@ def get_flight_plans_with_routes():
                     and route details.
     """
     query = """
-    SELECT fp.Flight_Plan_ID, fp.BUNO_ID, fp.Pilot_ID, fp.Route_ID, fp.IsPlanned,
+    SELECT fp.Flight_Plan_ID, fp.BUNO_ID, fp.Pilot_ID, fp.Route_ID, fp.IsPlanned, fp.IsComplete,
            r.Latitude, r.Longitude, r.Waypoint_ID
     FROM flight_plans fp
     INNER JOIN routes r ON fp.Route_ID = r.Route_ID
@@ -643,9 +645,11 @@ def get_flight_plans_with_routes():
                 "Pilot_ID": row["Pilot_ID"],
                 "Route_ID": row["Route_ID"],
                 "IsPlanned": row["IsPlanned"],
+                "IsComplete": row["IsComplete"],
                 "Latitude": row["Latitude"],
                 "Longitude": row["Longitude"],
                 "Waypoint_ID": row["Waypoint_ID"]
+
             }
             result.append(flight_plan_info)
         return result

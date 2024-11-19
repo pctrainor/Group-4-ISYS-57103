@@ -17,6 +17,7 @@ class FlightPlan:
     Pilot_ID: str
     Route_ID: str 
     IsPlanned: bool
+    IsComplete: bool
 
 @dataclass
 class Route:
