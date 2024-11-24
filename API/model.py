@@ -9,6 +9,9 @@ class Drone:
     Serial: str
     Status: str
     Status_Code: str
+    Altitude: int
+    Latitude: float
+    Longitude: float
 
 @dataclass
 class FlightPlan:

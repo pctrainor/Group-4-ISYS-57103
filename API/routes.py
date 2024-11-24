@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint, jsonify, send_from_directory, request
+from flask import Blueprint, jsonify, send_from_directory, request
 import API.services as services  # Import your services module
 
 api_bp = Blueprint('api', __name__)
@@ -47,9 +47,7 @@ def get_drone(buno_id):  # Changed drone_id to buno_id
     Retrieve a specific drone by its ID.
     """
     try:
-        drone = services.get_drone_by_id(
-            buno_id
-        )  # Call the function from services.py and pass buno_id
+        drone = services.get_drone_by_id(buno_id)  # Call the function from services.py and pass buno_id
         if drone:
             return jsonify(drone.__dict__), 200
         else:
@@ -72,16 +70,14 @@ def add_drone():
         return jsonify({'error': f'Failed to add drone: {str(e)}'}), 500
 
 
-@api_bp.route("/drones/<buno_id>", methods=["PUT"])  # Changed drone_id to buno_id
-def update_drone(buno_id):  # Changed drone_id to buno_id
+@api_bp.route("/drones/<buno_id>", methods=["PUT"])
+def update_drone(buno_id):
     """
     Update an existing drone by its ID.
     """
     try:
         drone_data = request.get_json()
-        updated_drone = services.update_drone(
-            buno_id, drone_data
-        )  # Call the function from services.py and pass buno_id
+        updated_drone = services.update_drone(buno_id, drone_data)  # Call the function from services.py and pass buno_id
         if updated_drone:
             return jsonify(updated_drone.__dict__), 200
         else:
@@ -90,8 +86,8 @@ def update_drone(buno_id):  # Changed drone_id to buno_id
         return jsonify({'error': f'Failed to update drone: {str(e)}'}), 500
 
 
-@api_bp.route("/drones/<buno_id>", methods=["DELETE"])  # Changed drone_id to buno_id
-def delete_drone(buno_id):  # Changed drone_id to buno_id
+@api_bp.route("/drones/<buno_id>", methods=["DELETE"])
+def delete_drone(buno_id):
     """
     Delete a specific drone by its ID.
     """
