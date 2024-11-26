@@ -63,7 +63,7 @@ paths:
           schema:
             type: string
           required: true
-          description: BUNO_ID of the drone to retrieve (e.g., DR-001)
+          description: BUNO_ID of the drone to retrieve
       responses:
         "200":
           description: A drone object
@@ -83,7 +83,7 @@ paths:
           schema:
             type: string
           required: true
-          description: BUNO_ID of the drone to update (e.g., DR-001)
+          description: BUNO_ID of the drone to update
       requestBody:
         required: true
         content:
@@ -109,7 +109,7 @@ paths:
           schema:
             type: string
           required: true
-          description: BUNO_ID of the drone to delete (e.g., DR-001)
+          description: BUNO_ID of the drone to delete
       responses:
         "200":
           description: Drone deleted successfully
@@ -681,6 +681,15 @@ components:
           type: string
         Status_Code:
           type: string
+        Altitude:
+          type: number
+          format: float
+        Latitude:
+          type: number
+          format: float
+        Longitude:
+          type: number
+          format: float
       required:
         - BUNO_ID
         - Drone_Model
@@ -689,14 +698,20 @@ components:
         - Serial
         - Status
         - Status_Code
+        - Altitude
+        - Latitude
+        - Longitude
       example:
         BUNO_ID: "DR-001"
-        Drone_Model: "DJI Phantom 4 Pro"
-        Manufacturer: "DJI Innovations"
-        Purchase_Date: "2022-05-20"
-        Serial: "23456"
+        Drone_Model: "Model X"
+        Manufacturer: "DroneCorp"
+        Purchase_Date: "2023-01-01"
+        Serial: "SN123456"
         Status: "Active"
-        Status_Code: "OK"
+        Status_Code: "A1"
+        Altitude: 5000.0
+        Latitude: 34.0522
+        Longitude: -118.2437
     Pilot:
       type: object
       properties:
@@ -714,7 +729,7 @@ components:
         Pilot_ID: "PILOT-001"
         Pilot_Current: true
         Pilot_Hours: 1000
-    DronePilotInfo: # New schema for /drones/<buno_id>/pilot_info
+    DronePilotInfo:
       type: object
       properties:
         drone:
@@ -730,6 +745,9 @@ components:
           Serial: "23456"
           Status: "Active"
           Status_Code: "OK"
+          Altitude: 5000.0
+          Latitude: 34.0522
+          Longitude: -118.2437
         pilot:
           Pilot_ID: "PILOT-001"
           Pilot_Current: true

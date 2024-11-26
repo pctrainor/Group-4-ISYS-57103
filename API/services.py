@@ -51,16 +51,25 @@ def run_query(query, params=None):
 # Drones
 # ---------------------------------------------------------
 
+def run_query(query, params=None):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        if params is not None:
+            cursor.execute(query, params)
+        else:
+            cursor.execute(query)
+        
+        if query.strip().upper().startswith("SELECT"):
+            results = cursor.fetchall()
+            return results
+        else:
+            conn.commit()
+            return cursor
+    finally:
+        conn.close()
+
 def convert_rows_to_drone_list(drones):
-    """
-    Converts database rows to Drone objects.
-
-    Args:
-        drones (list): Database rows.
-
-    Returns:
-        list: Drone objects.
-    """
     all_drones = []
     if drones is None:
         return all_drones
@@ -71,7 +80,10 @@ def convert_rows_to_drone_list(drones):
                       Purchase_Date=drone["Purchase_Date"],
                       Serial=drone["Serial"],
                       Status=drone["Status"],
-                      Status_Code=drone["Status_Code"])
+                      Status_Code=drone["Status_Code"],
+                      Altitude=drone["Altitude"],
+                      Latitude=drone["Latitude"],
+                      Longitude=drone["Longitude"])
         all_drones.append(drone)
     return all_drones
 
@@ -163,13 +175,14 @@ def add_drone(drone_data):
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Assuming your 'drones' table has columns: BUNO_ID, Drone_Model, Manufacturer, Purchase_Date, Serial, Status, Status_Code
+        # Assuming your 'drones' table has columns: DRONE_ID, Drone_Model, Manufacturer, Purchase_Date, Serial, Status, Status_Code, Altitude, Latitude, Longitude
         cursor.execute(
-            "INSERT INTO drones (BUNO_ID, Drone_Model, Manufacturer, Purchase_Date, Serial, Status, Status_Code) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO drones (BUNO_ID, Drone_Model, Manufacturer, Purchase_Date, Serial, Status, Status_Code, Altitude, Latitude, Longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (drone_data['BUNO_ID'], drone_data['Drone_Model'],
              drone_data['Manufacturer'], drone_data['Purchase_Date'],
              drone_data['Serial'], drone_data['Status'],
-             drone_data['Status_Code']))
+             drone_data['Status_Code'], drone_data['Altitude'],
+             drone_data['Latitude'], drone_data['Longitude']))
         conn.commit()
         conn.close()
 
@@ -179,15 +192,16 @@ def add_drone(drone_data):
                           Purchase_Date=drone_data['Purchase_Date'],
                           Serial=drone_data['Serial'],
                           Status=drone_data['Status'],
-                          Status_Code=drone_data['Status_Code'])
+                          Status_Code=drone_data['Status_Code'],
+                          Altitude=drone_data['Altitude'],
+                          Latitude=drone_data['Latitude'],
+                          Longitude=drone_data['Longitude'])
         return new_drone
 
     except sqlite3.Error as e:
         print(f"Error adding drone to the database: {e}")
         return None
-
-
-def update_drone(buno_id: int, drone_data: dict) -> Drone:
+def update_drone(drone_id: int, drone_data: dict) -> Drone:
     """
     Updates an existing drone in the database.
 
@@ -203,20 +217,27 @@ def update_drone(buno_id: int, drone_data: dict) -> Drone:
         cursor = conn.cursor()
 
         cursor.execute(
-            "UPDATE drones SET Drone_Model = ?, Manufacturer = ?, Purchase_Date = ?, Serial = ?, Status = ?, Status_Code = ? WHERE BUNO_ID = ?",
-            (drone_data['Drone_Model'], drone_data['Manufacturer'], drone_data['Purchase_Date'], drone_data['Serial'], drone_data['Status'], drone_data['Status_Code'], buno_id)
+            "UPDATE drones SET Drone_Model = ?, Manufacturer = ?, Purchase_Date = ?, Serial = ?, Status = ?, Status_Code = ?, Altitude = ?, Latitude = ?, Longitude = ? WHERE BUNO_ID = ?",
+            (drone_data['Drone_Model'], drone_data['Manufacturer'], drone_data['Purchase_Date'], drone_data['Serial'], drone_data['Status'], drone_data['Status_Code'], drone_data['Altitude'], drone_data['Latitude'], drone_data['Longitude'], drone_id)
         )
         conn.commit()
         conn.close()
 
-        updated_drone = Drone(BUNO_ID=buno_id,
+        updated_drone = Drone(BUNO_ID=drone_data['BUNO_ID'],
                               Drone_Model=drone_data['Drone_Model'],
                               Manufacturer=drone_data['Manufacturer'],
                               Purchase_Date=drone_data['Purchase_Date'],
                               Serial=drone_data['Serial'],
                               Status=drone_data['Status'],
-                              Status_Code=drone_data['Status_Code'])
+                              Altitude=drone_data['Altitude'],
+                              Status_Code=drone_data['Status_Code'],
+                              Latitude=drone_data['Latitude'],
+                              Longitude=drone_data['Longitude'])
         return updated_drone
+
+    except sqlite3.Error as e:
+        print(f"Error updating drone in the database: {e}")
+        return None
 
     except sqlite3.Error as e:
         print(f"Error updating drone in the database: {e}")
